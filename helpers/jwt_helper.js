@@ -4,7 +4,7 @@ module.exports = {
     signAccessToken: ({id,data}) => {
     
       return new Promise((resolve, reject) => {
-        const payload = {userType:data}
+        const payload = {userType:data,user_Id:id}
        
         const secret = process.env.JWT_SECRET
         const options = {

@@ -1,5 +1,7 @@
-const {Venture,Plot} = require('../Models/models')
+const {Venture,Plot,Payment,User,Employee,PlotBooking, Phase} = require('../Models/models')
 const sequelize  = require("../Config/db");
+const { Op } = require('sequelize');
+const moment = require('moment');
 module.exports={
   
     createVenture:async (req, res) => {
@@ -143,6 +145,52 @@ getAllVentures: async (req, res) => {
         return res.status(500).json({ message: 'Something went wrong.' });
       }
     },
+    
+getVenturePayments : async (req, res) => {
+
+  try {
+    const { venture_id } = req.body;
+    console.log(venture_id)
+    const { page = 1, pageSize = 10 } = req.query;
+
+    const venturePaymentInfo = await PlotBooking.findAndCountAll({
+      attributes: ['booking_id', 'createdAt',"status"],
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+      order: [['createdAt', 'DESC']],
+      include: [
+        {
+          model: Plot,
+          attributes: ['plot_number',"phase_id","status","offer_price"],
+          where: {
+            venture_id: venture_id,
+          },include:[
+            {
+              model:Phase,
+              attributes:["name"]
+            }
+          ]
+        },
+        {
+          model: User,
+          attributes: ['name', 'phone'],
+        },
+        {
+          model: Employee,
+          attributes: ['name'],
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      count: venturePaymentInfo.count,
+      rows: venturePaymentInfo.rows,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
 
  
 }

@@ -1,31 +1,35 @@
 const { Op } = require("sequelize");
 const sequelize  = require("../Config/db");
-const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment} = require('../Models/models')
+const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,Phase,Venture} = require('../Models/models')
 module.exports={
 
 
 // GET /employee/bookings
 
 Get_All: async (req, res) => {
- 
   try {
-    if(req.user.userType !== "employee" && req.user.userType !== "admin"){
-      return res.status(403).json({ message: 'Access Forbidden' })}
-      const page = req.body.page || 1;
-      const limit = req.body.limit || 10;
-      const offset = (page - 1) * limit;
+    if(req.user.userType !== "employee" && req.user.userType !== "admin") {
+      return res.status(403).json({ message: 'Access Forbidden' })
+    }
+    const { page, limit } = req.body;
+    console.log(page,limit)
+    const Page = page || 1;
+    const Limit = limit || 10;
+    const offset = (Page - 1) * Limit;
 
-    // const { id } = req.body; // assuming user id is stored in req.user
-const id=req.user.aud[0]
+    const id = req.user.aud[0]; // assuming user id is stored in req.user
+
     const bookings = await PlotBooking.findAll({
       where: {
         [Op.or]: [{ customer_id: id }, { agent_id: id }]
       },
       include: [
-        { model: Plot, attributes: ["plot_id"] },
+        { model: Plot, include: [{ model: Phase, attributes: ["name"] }], attributes: ["plot_number"] },
         { model: User, attributes: ["name"] },
         { model: Employee, attributes: ["name"] }
-      ],limit,
+      ],
+      attributes: ["booking_id", "createdAt", "status"],
+      Limit,
       offset
     });
 
@@ -52,13 +56,28 @@ const id=req.user.aud[0]
 
       // check if plot is available for booking
       const plot = await Plot.findByPk(plot_id);
+      if (!plot) {
+        await t.rollback();
+        return res.status(400).json({ success: false, message: "Plot not found" });
+      }
+      if(!plot.offer_sqr_yard_price){
+        await t.rollback();
+        return res.status(400).json({ success: false, message: "Final Price not Defined" });
+      }
       if (plot.status !=="available") {
         await t.rollback();
         return res
           .status(400)
           .json({ success: false, message: "The selected plot is already booked" });
       }
+     
+      const venture = await Venture.findByPk(plot.venture_id);
+      
+if(venture.status !=="active"){
+  return res.status(400).json({ success: false, message: "Venture is inactive" });
+}
 
+//to check phase
       // get the commission percentage for the agent's designation
       const employee = await Employee.findByPk(agent_id);
       

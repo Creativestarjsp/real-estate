@@ -24,7 +24,7 @@ const Venture = sequelize.define('ventures', {
     status: {
       type: DataTypes.ENUM('active','inactive'),
       allowNull: false,
-      defaultValue: 'inactive',
+      defaultValue: 'active',
     },
   },{indexes:[
     {
@@ -53,6 +53,10 @@ const Venture = sequelize.define('ventures', {
         model: 'venture',
         key: 'venture_id'
       }
+    },status: {
+      type: DataTypes.ENUM('active','inactive'),
+      allowNull: false,
+      defaultValue: 'active',
     }
   },{indexes:[
     {
@@ -78,7 +82,11 @@ const Designation = sequelize.define('designation', {
   percentage: {
     type: DataTypes.FLOAT,
     allowNull: false
-  }
+  },status: {
+    type: DataTypes.ENUM('active','inactive'),
+    allowNull: false,
+    defaultValue: 'active',
+  },
 },{indexes:[
   {
     
@@ -131,6 +139,10 @@ const Employee = sequelize.define('employee', {
     type: DataTypes.ENUM('employee','agent','admin'),
     allowNull: false,
     defaultValue: 'employee',
+  },status: {
+    type: DataTypes.ENUM('active','inactive'),
+    allowNull: false,
+    defaultValue: 'active',
   },
 },{indexes:[
   {
@@ -205,7 +217,11 @@ const User = sequelize.define('user', {
       key:"emp_id"
     }
    
-  }
+  },status: {
+    type: DataTypes.ENUM('active','inactive'),
+    allowNull: false,
+    defaultValue: 'active',
+  },
 }, {indexes:[
   {
     
@@ -328,6 +344,11 @@ const PlotBooking = sequelize.define('plotbooking', {
       key:"emp_id"
     }
    
+  },
+  status: {
+    type: DataTypes.ENUM("paid","cancelled"),
+    allowNull: false,
+    defaultValue: 'paid',
   }
   
 

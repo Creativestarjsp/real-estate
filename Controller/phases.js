@@ -1,5 +1,5 @@
 
-const {Venture,Phase} =require("../Models/models")
+const {Venture,Phase,Plot} =require("../Models/models")
 
 module.exports={
 
@@ -18,6 +18,24 @@ module.exports={
             res.status(500).json({ success: false, message: 'Server Error' });
           }
     },
+    
+    Venture_id:async(req,res)=>{
+      try {
+        const {venture_id}=req.body
+          const phases = await Phase.find({
+            where:{venture_id:venture_id},
+            
+            include: {
+              model: Venture,
+              attributes: ['venture_id', 'name']
+            },
+          });
+          res.status(200).json({ success: true, data: phases });
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ success: false, message: 'Server Error' });
+        }
+  },
 
     create:async(req,res)=>{
         try {
@@ -52,6 +70,81 @@ module.exports={
           }
         
     },
+
+
+ getPhasesByVentureId : async (req, res) => {
+  const ventureId = req.params.ventureId;
+
+  try {
+    const phases = await Phase.findAll({
+      where: { venture_id: ventureId },
+      attributes: ['phase_id', 'phase_name']
+    });
+
+    return res.status(200).json({ phases });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+},
+getPlotsByVentureAndPhase : async (req, res) => {
+  const { venture_id, phase_id, page, per_page } = req.query;
+  const Page =page || 1
+  const per_Page= per_page || 10
+  console.log(venture_id,phase_id,page,per_page)
+  const limit = parseInt(per_Page);
+  const offset = (parseInt(Page) - 1) * limit;
+  try {
+    const plots = await Plot.findAndCountAll({
+      where: { venture_id, phase_id },
+      limit,
+      offset,
+    });
+    return res.status(200).json({ plots });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+},
+getPhasePlots : async (req, res) => {
+  try {
+    const { venture_id, phase_id, page, per_page } = req.query;
+    const Page =page || 1
+    const per_Page= per_page || 10
+  
+    
+    const offset = (Page - 1) * per_Page;
+    
+    const phase = await Phase.findOne({
+      where: { venture_id: venture_id, phase_id: phase_id }
+    });
+    if (!phase) {
+      return res.status(404).json({ message: "Phase not found" });
+    }
+
+    const plots = await Plot.findAndCountAll({
+      where: { venture_id: venture_id, phase_id: phase_id },
+      attributes: ["plot_id", "plot_number"],
+      offset: offset,
+      limit: per_Page
+    });
+
+    const totalPages = Math.ceil(plots.count / per_Page);
+
+    return res.status(200).json({
+      plots: plots.rows,
+      currentPage: page,
+      totalPages: totalPages
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+
+
+
 
  
 }

@@ -2,7 +2,7 @@ const { Op } = require("sequelize");
 const moment = require('moment');
 
 const sequelize  = require("../Config/db");
-const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,PayCommission,Expenditure} = require('../Models/models')
+const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,PayCommission,Expenditure,Venture} = require('../Models/models')
 module.exports={
     dashboardData : async (req, res) => {
         try {
@@ -293,7 +293,30 @@ where:{
       console.error(error);
       res.status(500).json({ message: "Server Error" });
     }},
-  
+
+     updateVentureStatus : async (req, res) => {
+      try {
+        const { id } = req.query;
+        console.log(id)
+        let venture = await Venture.findByPk(id);
+        if (!venture) {
+          return res.status(404).json({ message: "Venture not found" });
+        }
+        let status = "active";
+        if (venture.status === "active") {
+          status = "inactive";
+        } else {
+          status = "active";
+        }
+        venture.status = status;
+        await venture.save();
+        return res.status(200).json({ message: "Venture status updated successfully" });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    },
+    
   
   
 

@@ -1,4 +1,5 @@
-const {User,PlotBooking,Plot,Payment,Employee} = require('../Models/models')
+const {User,PlotBooking,Plot,Payment,Employee,Phase,Venture} = require('../Models/models')
+
 const sequelize  = require("../Config/db");
 const { Op } = require("sequelize");
 const bcrypt = require('bcrypt');
@@ -37,6 +38,7 @@ module.exports={
     getbyid:async (req, res) => {
       try {
         const id = req.params.id;
+        console.log(req.user.aud)
         if (req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.aud[0] != id) {
           return res.status(403).json({ message: 'Access Forbidden' });
         }
@@ -125,16 +127,16 @@ module.exports={
        
         try {
           
-          const { name, email, password, phone1,address,aadharNumber,pan } = req.body;
+          const { name, email, password, phone,address,aadharNumber,pan } = req.body;
           const saltRounds = 10; // Set salt rounds for bcrypt
           const hashedPassword = await bcrypt.hash(password, saltRounds);
           // Check if user already exists
           const user = await User.findOne({ where: { email } });
           if (user) {
-            return res.status(400).json({ error: 'User already exists' });
+            return res.status(400).json({ error: 'User already exists' }); 
           }
           // Create new user
-          const newUser = await User.create({ name, email, password:hashedPassword, phone1,address,aadharNumber,pan });
+          const newUser = await User.create({ name, email, password:hashedPassword, phone,address,aadharNumber,pan });
           return res.status(201).json(newUser);
         } catch (err) {
           console.error(err);
@@ -187,6 +189,40 @@ module.exports={
         res.status(500).json({ message: 'Unable to fetch booked plots.' });
       }
     },
+    
+changePassword : async (req, res, next) => {
+  const { oldPassword, newPassword } = req.body;
+  const id = req.user.aud[0];
+
+  try {
+    // Check if user or employee with given id exists
+    const user = await User.findOne({ where: { id } });
+    const employee = await Employee.findOne({ where: { id } });
+
+    if (!user && !employee) {
+      return res.status(404).json({ message: "User or employee not found" });
+    }
+
+    // Check if old password is correct
+    const isValidPassword = await bcrypt.compare(oldPassword, user ? user.password : employee.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    // Hash and update new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    if (user) {
+      await user.update({ password: hashedPassword });
+    } else {
+      await employee.update({ password: hashedPassword });
+    }
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+},
+
 
     //Login user and employee
     userLogin :async (req, res, next) => {
@@ -231,10 +267,51 @@ module.exports={
    
     const accessToken = await signAccessToken({id:user.emp_id?user.emp_id:user.user_id,data:userType})
 
-    res.json({ accessToken });
+    res.json({ accessToken,userdata:user });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
     },
+
+
+    getUserBookedPlots: async (req, res) => {
+      try {
+        const userId = req.user.aud[0]; // assuming the user id is stored in the JWT audience field
+        const user = await User.findByPk(userId);
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        const plotBookings = await PlotBooking.findAll({
+          where: { customer_id: userId },
+          include: [
+            {
+              model: Plot,
+              attributes: ["venture_id", "phase_id", "plot_number"],
+              include: [
+                {
+                  model: Venture,
+                  attributes: ["name"],
+                },
+                {
+                  model: Phase,
+                  attributes: ["name"],
+                },
+              ],
+            },
+            {
+              model: Employee,
+              attributes: ["emp_id", "name", "email", "phone"],
+            },
+          ],
+          attributes: ["booking_id", "createdAt"],
+        });
+        return res.status(200).json({ plotBookings });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    }
+    
+    
 }
