@@ -1,8 +1,9 @@
 const { Op } = require("sequelize");
 const moment = require('moment');
+const bcrypt = require('bcrypt');
 
 const sequelize  = require("../Config/db");
-const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,PayCommission,Expenditure,Venture} = require('../Models/models')
+const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,PayCommission,Expenditure,Venture,Phase} = require('../Models/models')
 module.exports={
     dashboardData : async (req, res) => {
         try {
@@ -316,6 +317,161 @@ where:{
         return res.status(500).json({ message: "Internal server error" });
       }
     },
+    updateUserStatus: async (req, res) => {
+      try {
+        const { id } = req.query;
+        let status = "active";
+        const user = await User.findByPk(id);
+        
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        if (user.status == "active") {
+          status = "inactive";
+        } else {
+          status = "active";
+        }
+        user.status = status;
+        await user.save();
+        return res
+          .status(200)
+          .json({ message: "User status updated successfully" });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    },updateEmployeeStatus: async (req, res) => {
+      try {
+        const { id } = req.query;
+        let status = "active";
+        const employee = await Employee.findByPk(id);
+        if (!employee) {
+          return res.status(404).json({ message: "Employee not found" });
+        }
+        if (employee.status == "active") {
+          status = "inactive";
+        } else {
+          status = "active";
+        }
+        employee.status = status;
+        await employee.save();
+        return res
+          .status(200)
+          .json({ message: "Employee status updated successfully" });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    },updatePhaseStatus: async (req, res) => {
+      try {
+        const { id } = req.query;
+        let status = "active";
+        const phase = await Phase.findByPk(id);
+        if (!phase) {
+          return res.status(404).json({ message: "Phase not found" });
+        }
+        if (phase.status == "active") {
+          status = "inactive";
+        } else {
+          status = "active";
+        }
+        phase.status = status;
+        await phase.save();
+        return res
+          .status(200)
+          .json({ message: "Phase status updated successfully" });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    },updateDesignationStatus: async (req, res) => {
+      try {
+        const { id } = req.query;
+        let status = "active";
+        const designation = await Designation.findByPk(id);
+        if (!designation) {
+          return res.status(404).json({ message: "Designation not found" });
+        }
+        if (designation.status == "active") {
+          status = "inactive";
+        } else {
+          status = "active";
+        }
+        designation.status = status;
+        await designation.save();
+        return res
+          .status(200)
+          .json({ message: "Designation status updated successfully" });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    },
+    checkPassward:async (req, res) => {
+      const { id } = req.body;
+      const { userType } = req.user; // assuming you have already authenticated the user
+      console.log(id,userType)
+      try {
+        let password = null;
+        
+        if (userType === 'user') {
+          const user = await User.findByPk(id);
+          password = user.password;
+        } else if (userType === 'employee') {
+          const employee = await Employee.findByPk(id);
+          password = employee.password;
+        } 
+        console.log(password)
+        const saltRounds = 10; // Set salt rounds for bcrypt
+        if (password) {
+          const decryptedPassword = await bcrypt.compare(password,saltRounds);
+          return res.json({ password: decryptedPassword });
+        } else {
+          return res.status(404).json({ message: 'User or employee not found' });
+        }
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+    },
+    changePassword :async (req, res) => {
+     
+      
+      const { userType } = req.user; // assuming you have already authenticated the user
+      const { oldPassword, newPassword,id } = req.body;
+      console.log(id,oldPassword)
+      try {
+        let user = null;
+        let password = null;
+        if (userType === 'user') {
+          user = await User.findByPk(id);
+          password = user.password;
+        } else if (userType === 'employee') {
+          user = await Employee.findByPk(id);
+          password = user.password;
+        } 
+    
+        if (user && password) {
+          const isValidPassword = await bcrypt.compare(oldPassword, password);
+    
+          if (isValidPassword) {
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+            user.password = hashedPassword;
+            await user.save();
+            return res.json({ message: 'Password changed successfully' });
+          } else {
+            return res.status(400).json({ message: 'Old password is incorrect' });
+          }
+        } else {
+          return res.status(404).json({ message: 'User or employee not found' });
+        }
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+    
     
   
   

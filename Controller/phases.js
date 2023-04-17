@@ -22,13 +22,9 @@ module.exports={
     Venture_id:async(req,res)=>{
       try {
         const {venture_id}=req.body
-          const phases = await Phase.find({
+          const phases = await Phase.findAll({
             where:{venture_id:venture_id},
-            
-            include: {
-              model: Venture,
-              attributes: ['venture_id', 'name']
-            },
+            attributes: ['phase_id', 'name']
           });
           res.status(200).json({ success: true, data: phases });
         } catch (err) {

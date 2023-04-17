@@ -229,7 +229,7 @@ GetAll_by_VentureID: async (req, res) => {
 
       const { plot_id } = req.params;
       const {offer_sqr_yard_price}=req.body
-      const updateObj={}
+      const updateObj={} 
       if(!plot_id){
         return res.status(404).json({ error: 'Plot Id should not empty' });
       }

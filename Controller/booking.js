@@ -52,8 +52,8 @@ Get_All: async (req, res) => {
 
       
       const t = await sequelize.transaction({ isolationLevel: 'SERIALIZABLE' });
-      const { plot_id, customer_id, agent_id,amount,payment_method } = req.body;
-
+      const { plot_id, customer_id, agent_id,amount,payment_method,offer_sqr_yard_price } = req.body;
+      const updateObj={}
       // check if plot is available for booking
       const plot = await Plot.findByPk(plot_id);
       if (!plot) {
@@ -61,9 +61,24 @@ Get_All: async (req, res) => {
         return res.status(400).json({ success: false, message: "Plot not found" });
       }
       if(!plot.offer_sqr_yard_price){
-        await t.rollback();
-        return res.status(400).json({ success: false, message: "Final Price not Defined" });
-      }
+        if(offer_sqr_yard_price){          
+            updateObj.offer_sqr_yard_price = offer_sqr_yard_price;
+            updateObj.offer_price = offer_sqr_yard_price*plot.square_yards;
+            const plots = await Plot.update(updateObj, {
+              where: { plot_id: plot_id },
+            
+            });
+            if(plots[0]==0){
+              await t.rollback();
+              return res.status(400).json({ success: false, message: "Something Went Wrong..." });
+            }
+            
+          }else{
+            return res.status(400).json({ success: false, message: "Final Price not Defined" });
+          
+          }}
+        
+       
       if (plot.status !=="available") {
         await t.rollback();
         return res
@@ -77,10 +92,24 @@ if(venture.status !=="active"){
   return res.status(400).json({ success: false, message: "Venture is inactive" });
 }
 
+
 //to check phase
+const phases = await Phase.findByPk(plot.phase_id);
+if(phases.status !=="active"){
+  await t.rollback();
+  return res.status(400).json({ success: false, message: "Phase is inactive" });
+}
+// console.log(phases.status)
       // get the commission percentage for the agent's designation
       const employee = await Employee.findByPk(agent_id);
-      
+      if(!employee){
+        await t.rollback();
+        return res.status(400).json({ success: false, message: "Employee is not found" });
+      }
+      if(!employee.designation_id){
+        await t.rollback();
+        return res.status(400).json({ success: false, message: "Designation is not found" });
+      }
       const designation = await Designation.findByPk(employee.designation_id);
       const commissionPercentage = designation.percentage;
       const referralId = employee.referralId;
@@ -100,7 +129,7 @@ if(venture.status !=="active"){
 
       // create the payment
       const payment = await Payment.create(
-        { amount: amount, booking_id: booking.booking_id,payment_method:payment_method,customer_id:customer_id,plot_id:plot_id   },
+        { amount: amount, booking_id: booking.booking_id,payment_method:payment_method,customer_id:customer_id,plot_id:plot_id,venture_id:venture.venture_id   },
         { transaction: t }
       );
 
@@ -173,7 +202,7 @@ if(venture.status !=="active"){
         attributes: [[sequelize.fn('sum', sequelize.col('amount')), 'total_paid_amount']],
         raw: true,
       });
-  console.log(payments,plot.offer_price )
+  // console.log(payments,plot.offer_price )
       // calculate the remaining amount
       const totalPaidAmount = payments[0].total_paid_amount || 0;
       const remainingAmount = plot.offer_price - totalPaidAmount;

@@ -444,7 +444,13 @@ const Payment = sequelize.define('Payment', {
       model: 'user',
       key: 'user_id'
     }
-  },
+  },venture_id: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+    references: {
+      model: 'venture',
+      key: 'venture_id'
+    }},
 }, {indexes:[
   {
     

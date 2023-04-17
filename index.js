@@ -126,6 +126,15 @@ Payment.belongsTo(PlotBooking, {
   foreignKey: 'booking_id',
   as: 'plotBooking'
 });
+// define the association in Payment model
+Payment.belongsTo(Venture, {
+  foreignKey: 'venture_id'
+});
+
+// define the association in Venture model
+Venture.hasMany(Payment, {
+  foreignKey: 'venture_id'
+});
 
 Payment.belongsTo(Plot, { foreignKey: 'plot_id' });
 Plot.hasMany(Payment, { foreignKey: 'plot_id' });
@@ -137,7 +146,7 @@ Commission.belongsTo(Plot, { foreignKey: 'plot_id' });
 
 PayCommission.belongsTo(Employee, { foreignKey: 'agent_id' });
 PayCommission.belongsTo(Plot, { foreignKey: 'plot_id' });
-
+Payment.belongsTo(PlotBooking, { foreignKey: 'booking_id', as: 'plot_booking' });
 // Plot.belongsTo(Venture, { foreignKey: 'venture_id' });
 // Sync the database models
 sequelize.sync({alter:false,force:false})
