@@ -277,7 +277,10 @@ app.use((err, req, res, next) => {
 
 
 
+app.get('/home',async(req,res)=>{
 
+  res.send("hello World")
+})
 
 app.use('/user',verifyToken,userRouter)
 app.use('/ventures',verifyToken,venturesRouter)
