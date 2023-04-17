@@ -277,7 +277,7 @@ app.use((err, req, res, next) => {
 
 
 
-app.get('/home',async(req,res)=>{
+app.get('/',async(req,res)=>{
 
   res.send("hello World")
 })

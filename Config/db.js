@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Create a new Sequelize instance
-const sequelize = new Sequelize("estate","root",null, {
+const sequelize = new Sequelize("es","root",null, {
   host:"localhost",
   dialect: 'mysql',
   // logging: (...msg)=>console.log(msg),
