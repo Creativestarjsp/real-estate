@@ -134,5 +134,22 @@ module.exports={
           console.error(error);
           return res.status(500).json({ message: "Internal Server Error" });
         }
+  },
+  getAgentEmployees: async (req, res) => {
+    try {
+      console.log("hello")
+      const employees = await Employee.findAll({
+        where: {
+          role: 'agent'
+        },
+        attributes: ['emp_id', 'name'] // Add any additional attributes you want to retrieve
+      });
+  
+      return res.status(200).json(employees);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
   }
+  
 }
