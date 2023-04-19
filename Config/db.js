@@ -1,13 +1,11 @@
 const { Sequelize } = require('sequelize');
-const dotenv = require('dotenv');
-
-// Load environment variables from .env file
-dotenv.config();
-
 // Create a new Sequelize instance
-const sequelize = new Sequelize("estate","root",null, {
-  host:"localhost",
+console.log(process.env.DB,process.env.UNAME,process.env.PWD,process.env.HOST)
+const sequelize = new Sequelize(process.env.DB,process.env.UNAME,process.env.PWD, {
+  host: process.env.HOST,
   dialect: 'mysql',
+  port:3306,
+ 
   // logging: (...msg)=>console.log(msg),
   logging:false,
   define: {
