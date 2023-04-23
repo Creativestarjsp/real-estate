@@ -146,7 +146,7 @@ Commission.belongsTo(Plot, { foreignKey: 'plot_id' });
 
 PayCommission.belongsTo(Employee, { foreignKey: 'agent_id' });
 PayCommission.belongsTo(Plot, { foreignKey: 'plot_id' });
-Payment.belongsTo(PlotBooking, { foreignKey: 'booking_id', as: 'plot_booking' });
+// Payment.belongsTo(PlotBooking, { foreignKey: 'booking_id', as: 'plot_booking' });
 // Plot.belongsTo(Venture, { foreignKey: 'venture_id' });
 // Sync the database models
 sequelize.sync({alter:false,force:false})
