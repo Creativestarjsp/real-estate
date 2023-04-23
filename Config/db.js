@@ -1,10 +1,10 @@
 const { Sequelize } = require('sequelize');
 // Create a new Sequelize instance
-console.log(process.env.DB,process.env.UNAME,process.env.PWD,process.env.HOST)
+// console.log(process.env.DB,process.env.UNAME,process.env.PWD,process.env.HOST)
 const sequelize = new Sequelize(process.env.DB,process.env.UNAME,process.env.PWD, {
   host: process.env.HOST,
   dialect: 'mysql',
-  port:process.env.PORT,
+  port:process.env.DBPORT,
  
   // logging: (...msg)=>console.log(msg),
   logging:false,
