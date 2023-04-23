@@ -149,7 +149,7 @@ PayCommission.belongsTo(Plot, { foreignKey: 'plot_id' });
 Payment.belongsTo(PlotBooking, { foreignKey: 'booking_id', as: 'plot_booking' });
 // Plot.belongsTo(Venture, { foreignKey: 'venture_id' });
 // Sync the database models
-sequelize.sync({alter:false,force:false})
+sequelize.sync({alter:true,force:true})
   .then(() => {
     console.log('Database connected and models synced.');
   })
