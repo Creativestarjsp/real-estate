@@ -150,7 +150,7 @@ Payment.belongsTo(PlotBooking, { foreignKey: 'booking_id', as: 'plot_booking' })
 Plot.belongsTo(Venture, { foreignKey: 'venture_id' });
 // Sync the database models
 // Sync the models with the database
-sequelize.sync({ alter: false, force: false, hooks: true })
+sequelize.sync({ alter: true, force: true, hooks: true })
   .then(async () => { // Use async function to use await for bcrypt
     console.log('Database connected and models synced.');
 
