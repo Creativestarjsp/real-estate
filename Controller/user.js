@@ -128,7 +128,7 @@ module.exports={
         try {
           
           const { name, email, password, phone,address,aadharNumber,pan } = req.body;
-          const saltRounds = process.env.SALT; // Set salt rounds for bcrypt
+          const saltRounds = 10; // Set salt rounds for bcrypt
           const hashedPassword = await bcrypt.hash(password, saltRounds);
           // Check if user already exists
           const user = await User.findOne({ where: { email } });

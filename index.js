@@ -160,7 +160,7 @@ sequelize.sync({ alter: true, force: true, hooks: true })
     if (!admin) {
       // If admin does not exist, insert admin into the employee table
       const password = process.env.PASSWORD;
-      const saltRounds = process.env.SALT; // Set salt rounds for bcrypt
+      const saltRounds = 10; // Set salt rounds for bcrypt
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
       // Insert designation data if not already present

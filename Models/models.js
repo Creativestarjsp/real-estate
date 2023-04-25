@@ -426,7 +426,7 @@ const Payment = sequelize.define('Payment', {
     type: DataTypes.BIGINT,
     allowNull: false,
     references: {
-      model: 'PlotBooking',
+      model: 'plotbooking',
       key: 'booking_id'
     }
   },
