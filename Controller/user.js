@@ -128,7 +128,7 @@ module.exports={
         try {
           
           const { name, email, password, phone,address,aadharNumber,pan } = req.body;
-          const saltRounds = 10; // Set salt rounds for bcrypt
+          const saltRounds = process.env.SALT; // Set salt rounds for bcrypt
           const hashedPassword = await bcrypt.hash(password, saltRounds);
           // Check if user already exists
           const user = await User.findOne({ where: { email } });
@@ -210,7 +210,7 @@ changePassword : async (req, res, next) => {
     }
 
     // Hash and update new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword,process.env.SALT);
     if (user) {
       await user.update({ password: hashedPassword });
     } else {
@@ -230,12 +230,12 @@ changePassword : async (req, res, next) => {
   try {
     const { email, password,phone } = req.body;
     // Check if user exists in User table
-    
+    console.log("hello")
     
     let user =null
     let userType = "";
     if(email) {
-      user = await Employee.findOne({ where: { email }});
+      user = await Employee.findOne({ where: { email:email }});
     }
    
     if(user){userType=user.role}
@@ -273,7 +273,42 @@ changePassword : async (req, res, next) => {
     res.status(500).json({ message: "Internal server error" });
   }
     }, 
-
+ employeeLogin : async (req, res) => {
+      try {
+        const { email, password } = req.body;
+        // Check if employee exists in Employee table
+        
+        const employee = await Employee.findOne({raw:true, where: { email } });
+  
+        // If employee not found, return error
+        if (!employee) {
+          return res.status(404).json({ message: "Employee not found" });
+        }
+    
+        // Check if password is correct
+        const passwordMatch = await bcrypt.compare(password, employee.password);
+    
+        // If password is incorrect, return error
+        if (!passwordMatch) {
+          return res.status(401).json({ message: "Incorrect password" });
+        }
+    
+        // Create JWT token
+        const token = jwt.sign(
+          { id: employee.emp_id, userType: employee.role }, // Assuming 'emp_id' and 'role' are the correct column names in the Employee model
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1h",
+          }
+        );
+    
+        // Return token and employee data
+        res.json({ accessToken: token, userdata: employee });
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    },
 
     getUserBookedPlots: async (req, res) => {
       try {

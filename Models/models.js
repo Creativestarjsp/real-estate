@@ -147,7 +147,7 @@ const Employee = sequelize.define('employee', {
 },{indexes:[
   {
     
-      fields: ['emp_id']
+      fields: ['emp_id',"email"]
     
   }
 ],tableName:"employee",  timestamps: true,});
@@ -422,14 +422,14 @@ const Payment = sequelize.define('Payment', {
   },
   // foreign key references
 
-  // booking_id: {
-  //   type: DataTypes.BIGINT,
-  //   allowNull: false,
-  //   references: {
-  //     model: 'PlotBooking',
-  //     key: 'booking_id'
-  //   }
-  // },
+  booking_id: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+    references: {
+      model: 'PlotBooking',
+      key: 'booking_id'
+    }
+  },
   plot_id: {
     type: DataTypes.BIGINT,
     allowNull: false,

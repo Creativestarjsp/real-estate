@@ -4,17 +4,18 @@ module.exports={
     ERegister: async (req, res) => {
         
         try {
-          const { name, email, password,phone, designation_id,referralId, } = req.body;
-          const saltRounds = 10; // Set salt rounds for bcrypt
+          const { name, email, password,phone, designation_id,referralId,role } = req.body;
+          const saltRounds = process.env.SALT; // Set salt rounds for bcrypt
           const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+          const rolee=role?role:"employee"
           // Check if user already exists
           const user = await Employee.findOne({ where: { email } });
           if (user) {
             return res.status(400).json({ error: 'User already exists' });
           }
           // Create new user
-          const newUser = await Employee.create({ name, email, password:hashedPassword,phone,designation_id,referralId });
+          const newUser = await Employee.create({ name, email, password:hashedPassword,phone,designation_id,referralId,role:rolee });
           return res.status(201).json(newUser);
         } catch (err) {
           console.error(err);

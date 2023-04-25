@@ -89,6 +89,7 @@ getAllVentures: async (req, res) => {
       },
 
     //update venture by id
+   
     updateById:async (req, res) => { 
         try {
 
@@ -149,9 +150,9 @@ getAllVentures: async (req, res) => {
 getVentureBookings : async (req, res) => {
 
   try {
-    const { venture_id } = req.body;
+    const { venture_id } = req.params;
     console.log(venture_id)
-    const { page = 1, pageSize = 10 } = req.query;
+    const { page = 1, pageSize = 10 } = req.params; 
 
     const venturePaymentInfo = await PlotBooking.findAndCountAll({
       attributes: ['booking_id', 'createdAt',"status"],

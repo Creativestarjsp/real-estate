@@ -5,10 +5,7 @@ const sequelize = new Sequelize(process.env.MYSQLDATABASE,process.env.MYSQLUSER,
   host: process.env.MYSQLHOST,
   dialect: 'mysql',
   port:process.env.MYSQLPORT,
- 
-  // logging: (...msg)=>console.log(msg),
-  logging:false,
-  define: {
+   define: {
     timestamps: true
   }
 });

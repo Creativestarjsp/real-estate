@@ -13,7 +13,7 @@ const cors =require('cors')
 app.use(cors());
 const {Venture,Phase,User,Plot, Employee, Designation,PlotBooking,Commission,Payment,PayCommission}=require('./Models/models')
 const {verifyToken}=require("./helpers/jwt_helper")
-
+const bcrypt = require('bcrypt');
 //  Import Routes
 const userRouter=require('./Routes/user')
 const venturesRouter=require('./Routes/ventures')
@@ -146,17 +146,47 @@ Commission.belongsTo(Plot, { foreignKey: 'plot_id' });
 
 PayCommission.belongsTo(Employee, { foreignKey: 'agent_id' });
 PayCommission.belongsTo(Plot, { foreignKey: 'plot_id' });
-// Payment.belongsTo(PlotBooking, { foreignKey: 'booking_id', as: 'plot_booking' });
-// Plot.belongsTo(Venture, { foreignKey: 'venture_id' });
+Payment.belongsTo(PlotBooking, { foreignKey: 'booking_id', as: 'plot_booking' });
+Plot.belongsTo(Venture, { foreignKey: 'venture_id' });
 // Sync the database models
-sequelize.sync({alter:false,force:false})
-  .then(() => {
+// Sync the models with the database
+sequelize.sync({ alter: false, force: false, hooks: true })
+  .then(async () => { // Use async function to use await for bcrypt
     console.log('Database connected and models synced.');
+
+    // Check if the admin already exists in the employee table
+    const admin = await Employee.findOne({ where: { role: 'admin' } });
+
+    if (!admin) {
+      // If admin does not exist, insert admin into the employee table
+      const password = process.env.PASSWORD;
+      const saltRounds = process.env.SALT; // Set salt rounds for bcrypt
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // Insert designation data if not already present
+      await Designation.findOrCreate({
+        where: { name: 'admin' }, // Check if 'admin' designation already exists
+        defaults: { name: 'admin', percentage: 0 } // Insert 'admin' designation with null percentage if not found
+      });
+
+      // Get the 'admin' designation
+      const adminDesignation = await Designation.findOne({ where: { name: 'admin' } });
+
+      // Insert admin into the employee table
+      const data = await Employee.create({
+        name: process.env.ADMINNAME,
+        email: process.env.EMAIL,
+        role: process.env.ROLE,
+        password: hashedPassword, // Set the hashed password
+        designation_id: adminDesignation.desig_id // Set the 'admin' designation_id
+      });
+
+      console.log('Admin added to the employee table.');
+    }
   })
   .catch((error) => {
     console.error('Unable to connect to the database:', error);
   });
- 
 // Middleware for parsing JSON data in request bodies
 app.use(express.json());
 
