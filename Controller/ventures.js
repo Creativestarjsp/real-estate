@@ -147,51 +147,52 @@ getAllVentures: async (req, res) => {
       }
     },
     
-getVentureBookings : async (req, res) => {
-
-  try {
-    const { venture_id } = req.params;
-    console.log(venture_id)
-    const { page = 1, pageSize = 10 } = req.params; 
-
-    const venturePaymentInfo = await PlotBooking.findAndCountAll({
-      attributes: ['booking_id', 'createdAt',"status"],
-      limit: pageSize,
-      offset: (page - 1) * pageSize,
-      order: [['createdAt', 'DESC']],
-      include: [
-        {
-          model: Plot,
-          attributes: ['plot_number',"phase_id","status","offer_price"],
-          where: {
-            venture_id: venture_id,
-          },include:[
+    getVentureBookings: async (req, res) => {
+      try {
+        const { venture_id ,page = 1, pageSize = 10} = req.body;
+        console.log(venture_id);
+        
+    
+        const venturePaymentInfo = await PlotBooking.findAndCountAll({
+          attributes: ['booking_id', 'createdAt', 'status'],
+          limit: pageSize,
+          offset: (page - 1) * pageSize,
+          order: [['createdAt', 'DESC']],
+          include: [
             {
-              model:Phase,
-              attributes:["name"]
-            }
-          ]
-        },
-        {
-          model: User,
-          attributes: ['name', 'phone'],
-        },
-        {
-          model: Employee,
-          attributes: ['name'],
-        },
-      ],
-    });
-
-    return res.status(200).json({
-      count: venturePaymentInfo.count,
-      rows: venturePaymentInfo.rows,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Internal server error' });
-  }
-},
+              model: Plot,
+              attributes: ['plot_number', 'phase_id', 'status', 'offer_price'],
+              include: [
+                {
+                  model: Phase,
+                  attributes: ['name'],
+                },
+              ],
+              where: {
+                venture_id:venture_id, // Use shorthand syntax
+              },
+            },
+            {
+              model: User,
+              attributes: ['name', 'phone'],
+            },
+            {
+              model: Employee,
+              attributes: ['name'],
+            },
+          ],
+        });
+    
+        return res.status(200).json({
+          count: venturePaymentInfo.count,
+          rows: venturePaymentInfo.rows,
+        });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+    },
+    
 //not working
 getVenturePayments: async (req, res) => {
   try {
@@ -224,13 +225,7 @@ getVenturePayments: async (req, res) => {
         {
           model: Payment,
           attributes: ['payment_id', 'amount'],
-          include: [
-            {
-              model: PlotBooking,
-              attributes: ['booking_id', 'createdAt', 'status'],
-              as: 'plot_booking',
-            },
-          ],
+          
         },
         {
           model: Employee,

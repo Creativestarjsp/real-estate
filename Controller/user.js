@@ -146,7 +146,7 @@ module.exports={
   
 
     getUserBookedPlots1:async (req, res) => {
-      try {
+      try { 
         
         const { userId } = req.params;
         if (req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.aud[0] != userId) {

@@ -1,11 +1,13 @@
 const express =require('express');
-const { ERegister, Get_All, Getby_id, Updateby_id, Delete_id, getAgentEmployees,  } = require('../Controller/employee');
+const { ERegister, Get_All, Getby_id, Updateby_id, Delete_id, getAgentEmployees, getAllAgents,getUplevelUsersByAgentId  } = require('../Controller/employee');
 const { updateVentureStatus, updateUserStatus, updateEmployeeStatus, updateDesignationStatus, updatePhaseStatus } = require('../Controller/dashboard');
 
 const router =express.Router()
 
 router.post('/employee',ERegister)
 router.get('/all',Get_All)
+router.get('/agents/all',getAllAgents)
+router.post('/agents/uplevel/:emp_id',getUplevelUsersByAgentId)
 router.get('/:id',Getby_id)
 router.put('/:id',Updateby_id)
 router.delete('/:id',Delete_id)

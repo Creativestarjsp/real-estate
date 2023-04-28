@@ -4,7 +4,7 @@ module.exports={
     ERegister: async (req, res) => {
         
         try {
-          const { name, email, password,phone, designation_id,referralId,role } = req.body;
+          const { name, email, password,phone, designation_id,referralId,role } = req.body; 
           const saltRounds = 10; // Set salt rounds for bcrypt
           const hashedPassword = await bcrypt.hash(password, saltRounds);
  
@@ -28,10 +28,13 @@ module.exports={
         if(req.user.userType !== "employee" && req.user.userType !== "admin"){
           return res.status(403).json({ message: 'Access Forbidden' })}
           const page = req.body.page || 1;
-    const limit = req.body.limit || 10;
-    const offset = (page - 1) * limit;
+           const limit = req.body.limit || 10;
+            const offset = (page - 1) * limit;
 
         const employees = await Employee.findAll({
+          where: {
+            role:'employee'
+          },
           include: {
             model: Designation,
             attributes: ['name']
@@ -44,6 +47,58 @@ module.exports={
         res.status(500).json({ success: false, message: 'Server Error' });
       }
     },
+    getAllAgents: async (req, res) => {
+      try {
+        const { page = 1, limit = 10 } = req.body;
+    
+        const employees = await Employee.findAndCountAll({
+          where: {
+            role: 'agent'
+          },
+          
+          offset: (page - 1) * limit,
+          limit: limit,
+          order: [['createdAt', 'DESC']]
+        });
+    
+        return res.status(200).json({
+          count: employees.count,
+          rows: employees.rows,
+        });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }},
+      getUplevelUsersByAgentId :async (req, res) => {
+       
+        try {
+          const { emp_id } = req.params;
+          let uplevelAgents = [];
+      
+          const findUplevelAgents = async (referralId) => {
+            const uplineAgent = await Employee.findOne({ where: { emp_id:referralId } });
+            if (uplineAgent) {
+              uplevelAgents.push(uplineAgent);
+              if (uplineAgent.referralId) {
+                await findUplevelAgents(uplineAgent.referralId);
+              }
+            }
+          };
+      
+          const agent = await Employee.findOne({ where: { emp_id } });
+          if (!agent) {
+            return res.status(404).json({ message: 'Agent not found' });
+          }
+          // uplevelAgents.push(agent);
+          await findUplevelAgents(agent.referralId);
+      
+          return res.status(200).json(uplevelAgents);
+        } catch (error) {
+          console.error(error);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+      
+      },
 
     Getby_id:async (req, res) => {
       try {
