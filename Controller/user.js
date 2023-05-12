@@ -93,7 +93,7 @@ module.exports={
           const updatedUser = await User.update(updateObj, {
             where: {
               user_id: id
-            }
+            } 
           });
           res.status(200).json(updatedUser);
         } catch (error) {
@@ -165,8 +165,8 @@ module.exports={
             'offer_price',
             'customer_id',
             [sequelize.literal('(offer_price )'), 'cost'],
-            [sequelize.fn('SUM', sequelize.col('payments.amount')), 'paid_amount'],
-            [sequelize.literal('(offer_price - SUM(payments.amount))'), 'balance'],
+            [sequelize.fn('SUM', sequelize.col('payment.amount')), 'paid_amount'],
+            [sequelize.literal('(offer_price - SUM(payment.amount))'), 'balance'],
           ],
           include: [
             {

@@ -213,6 +213,7 @@ if(phases.status !=="active"){
       res.status(500).json({ success: false, message: 'Server Error' });
     }
   },
+  //pending
  addPayment: async (req, res) => {
     const t = await sequelize.transaction({ isolationLevel: 'SERIALIZABLE' });
   
@@ -248,7 +249,14 @@ if(phases.status !=="active"){
         return res.status(400).json({ success: false, message: "Final Price not Defined" });
       }
   
-      
+      // check if venture exists
+    const venture = await Venture.findByPk(plot.venture_id);
+  
+    if (!venture) {
+      await t.rollback();
+      return res.status(400).json({ success: false, message: "Venture not found" });
+    }
+  
       // calculate remaining amount
       const paidAmount = await Payment.sum('amount', {
         where: { booking_id }
@@ -264,7 +272,7 @@ if(phases.status !=="active"){
   
       // create the payment
       const payment = await Payment.create(
-        { amount, booking_id, payment_method,customer_id,plot_id:booking.plot_id   },
+        { amount, booking_id, payment_method,customer_id,plot_id:booking.plot_id,venture_id:venture.venture_id   },
         { transaction: t }
       );
  // get the commission percentage for the agent's designation

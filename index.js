@@ -16,6 +16,8 @@ const {verifyToken}=require("./helpers/jwt_helper")
 const bcrypt = require('bcrypt');
 //  Import Routes
 const userRouter=require('./Routes/user')
+
+
 const venturesRouter=require('./Routes/ventures')
 const phaseRouter=require('./Routes/phases')
 const employeeRouter=require("./Routes/employee")
@@ -314,8 +316,11 @@ app.get('/',async(req,res)=>{
 })
 
 app.use('/user',verifyToken,userRouter)
+
 app.use('/ventures',verifyToken,venturesRouter)
+
 app.use('/phase',verifyToken,phaseRouter)
+
 app.use('/employee',verifyToken,employeeRouter)
 app.use('/designations',verifyToken,designationsRouter)
 app.use('/booking',verifyToken,bookingRouter)

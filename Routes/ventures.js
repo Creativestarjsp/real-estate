@@ -11,4 +11,4 @@ router.put('/:id',updateById)
 router.delete('/:id',deleteVentureById)
 router.get('/v/paymentinfo',getVentureBookings)
 router.get('/v/paymentinformation',getVenturePayments)
-module.exports = router;
+module.exports = router; 

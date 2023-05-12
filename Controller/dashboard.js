@@ -313,7 +313,7 @@ where:{
         await venture.save();
         return res.status(200).json({ message: "Venture status updated successfully" });
       } catch (error) {
-        console.error(error);
+        console.error(error); 
         return res.status(500).json({ message: "Internal server error" });
       }
     },
@@ -394,6 +394,30 @@ where:{
         }
         if (designation.status == "active") {
           status = "inactive";
+        } else {
+          status = "active";
+        }
+        designation.status = status;
+        await designation.save();
+        return res
+          .status(200)
+          .json({ message: "Designation status updated successfully" });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    },
+    updatePlotStatus: async (req, res) => {
+      try {
+        const { id } = req.query;
+        const {status}=req.body
+       
+        const designation = await Designation.findByPk(id);
+        if (!designation) {
+          return res.status(404).json({ message: "Designation not found" });
+        }
+        if (!status) {
+          return res.status(404).json({ message: " not found" });
         } else {
           status = "active";
         }

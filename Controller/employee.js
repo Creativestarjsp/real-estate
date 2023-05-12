@@ -55,6 +55,12 @@ module.exports={
           where: {
             role: 'agent'
           },
+          include:[
+            {
+              model:Designation,
+              attributes:['name']
+            }
+          ],
           
           offset: (page - 1) * limit,
           limit: limit,

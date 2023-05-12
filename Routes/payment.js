@@ -11,3 +11,4 @@ router.post('/user/:userId',paymentController.getAllUserPayments)
 
 
 module.exports = router;
+ 

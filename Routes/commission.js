@@ -10,7 +10,7 @@ router.get("/:employeeId",getCommissionsForEmployee);
 router.post("/plot",getCommissionsOfplot);
 router.post("/pay/agent",createPayCommission)
 router.get("/pay/agent/:id",getPayCommissionById)
-router.post("/pay/agent/update",updatePayCommissionById)
+router.post("/pay/agent/update",updatePayCommissionById) 
 router.get("/agent/paydeatils/:agent_id",getPayCommissionByagent_id)
 router.get("/paycommissions/all/data",getPayCommissions)
 // router.get("/test/data/d/a",GetAgentPaidandremainingAmount)
