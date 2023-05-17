@@ -7,10 +7,10 @@ router.post('/register',Register)
 router.post('/changepassword',changePassword)
 router.post("/all",getAllUsers)
 router.get("/:id",getbyid)
-router.post("/:id",updatebyid)
-router.get("/del/:id",deletebyid)
+router.put("/:id",updatebyid)
+router.delete("/del/:id",deletebyid)
 router.get('/plots/all/:userId',getUserBookedPlots1)
-router.get('/myplots/list',getUserBookedPlots)
+router.post('/myplots/list',getUserBookedPlots)
 
 
 

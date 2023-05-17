@@ -312,13 +312,16 @@ changePassword : async (req, res, next) => {
 
     getUserBookedPlots: async (req, res) => {
       try {
+
+        const {user_id}= req.body
         const userId = req.user.aud[0]; // assuming the user id is stored in the JWT audience field
+        console.log(user_id,userId)
         const user = await User.findByPk(userId);
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
         const plotBookings = await PlotBooking.findAll({
-          where: { customer_id: userId },
+          where: { customer_id: userId?userId:user_id },
           include: [
             {
               model: Plot,
