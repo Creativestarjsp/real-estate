@@ -163,7 +163,7 @@ exports.getPlotPaymentHistory = async (req, res) => {
       where: {
         plot_id: plot_id,
       },
-      attributes: ['payment_id', 'amount','createdAt'],
+      attributes: ['payment_id', 'amount','createdAt','payment_method'],
       include: [
         {
           model: Plot,
