@@ -174,7 +174,7 @@ getAllVentures: async (req, res) => {
             },
             {
               model: User,
-              attributes: ['name', 'phone'],
+              attributes: ['name', 'phone','user_id'],
             },
             {
               model: Employee,
