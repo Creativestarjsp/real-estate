@@ -177,6 +177,16 @@ module.exports={
               model:User,
               attributes:['name'],
               required:true
+            },
+            {
+              model:Employee,
+              attributes:['name',"phone"],
+              required:true
+            },
+            {
+              model:Venture,
+              attributes:['name'],
+              required:true
             }
             
           ],
