@@ -154,3 +154,29 @@ exports.getAllUserPayments = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getPlotPaymentHistory = async (req, res) => {
+  try {
+    const { plot_id } = req.params;
+
+    const plotPaymentHistory = await Payment.findAll({
+      where: {
+        plot_id: plot_id,
+      },
+      attributes: ['payment_id', 'amount','createdAt'],
+      include: [
+        {
+          model: Plot,
+          attributes: ['plot_id', 'plot_number'], // Include any other plot attributes you need
+        },
+      ],
+    });
+
+    res.status(200).json(plotPaymentHistory);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Unable to fetch plot payment history.' });
+  }
+};
+
+

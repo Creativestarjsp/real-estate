@@ -8,6 +8,7 @@ router.post('/all',paymentController.AllPaymentDetails)
 // Route for adding a new payment
 router.post('/payments', paymentController.addPayment);
 router.post('/user/:userId',paymentController.getAllUserPayments)
+router.get('/plot/:plot_id/payment-history', paymentController.getPlotPaymentHistory);
 
 
 module.exports = router;
