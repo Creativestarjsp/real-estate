@@ -140,9 +140,16 @@ exports.getAllUserPayments = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    const payments = await Payment.findAll({ where: { customer_id:user.user_id   },limit,
+    const payments = await Payment.findAll({ where: { customer_id:user.user_id   },
+      include: [{
+      model: Plot,
+      as: 'plot',
+      attributes: ['plot_number'] 
+    }],
+      
+      limit,
       offset });
-    return res.status(200).json(payments);
+    return res.status(200).json(payments); 
   } catch (error) {
     next(error);
   }

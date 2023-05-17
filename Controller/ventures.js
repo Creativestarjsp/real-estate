@@ -204,7 +204,7 @@ getVenturePayments: async (req, res) => {
       limit: pageSize,
       offset: (page - 1) * pageSize,
       order: [['createdAt', 'DESC']],
-      include: [
+      include: [ 
         {
           model: Plot,
           attributes: ['plot_number', 'phase_id', 'status', 'offer_price'],
