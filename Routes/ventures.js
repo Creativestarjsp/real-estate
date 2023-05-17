@@ -9,6 +9,6 @@ router.post('/add',createVenture)
 router.get('/:id',getVentureById)
 router.put('/:id',updateById)
 router.delete('/:id',deleteVentureById)
-router.get('/v/paymentinfo',getVentureBookings)
+router.post('/v/paymentinfo',getVentureBookings)
 router.get('/v/paymentinformation',getVenturePayments)
 module.exports = router; 
