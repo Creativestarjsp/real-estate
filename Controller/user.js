@@ -313,7 +313,7 @@ deletebyid: async (req, res) => {
 
       // Check if user exists in Employee table
       if (phone) {
-        user = await Employee.findOne({ where: { email: email } });
+        user = await Employee.findOne({ where: { phone: phone } });
       }
   
       if (user) {
