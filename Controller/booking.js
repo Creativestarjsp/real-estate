@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const sequelize  = require("../Config/db");
-const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,Phase,Venture} = require('../Models/models')
+const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,Phase,Venture,Percentage} = require('../Models/models')
 module.exports={
 
 
@@ -106,11 +106,19 @@ if(phases.status !=="active"){
         await t.rollback();
         return res.status(400).json({ success: false, message: "Employee is not found" });
       }
-      if(!employee.designation_id){
+      if(!employee.desig_id){
         await t.rollback();
         return res.status(400).json({ success: false, message: "Designation is not found" });
       }
-      const designation = await Designation.findByPk(employee.designation_id);
+      // console.log( employee.desig_id,venture.venture_id,"222")
+      const designation = await Percentage.findOne({
+        where: { desig_id:employee.desig_id,venture_id:venture.venture_id },
+      });
+      
+      if (!designation) {
+        await t.rollback();
+        return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture 1" });
+      }
       const commissionPercentage = designation.percentage;
       const referralId = employee.referralId;
       // calculate the commission amount
@@ -148,7 +156,15 @@ if(phases.status !=="active"){
       }
 
   // get the commission percentage for the employee's designation
-  const referralDesignation = await Designation.findByPk(referralEmployee.designation_id);
+  const referralDesignation = await Percentage.findOne({
+    where: { desig_id: referralEmployee.desig_id, venture_id: venture.venture_id },
+  });
+  if (!designation) {
+    await t.rollback();
+    return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture 2" });
+  }
+
+  
   const rcommissionPercentage = referralDesignation.percentage;
 
   // calculate the commission amount
@@ -277,7 +293,14 @@ if(phases.status !=="active"){
       );
  // get the commission percentage for the agent's designation
  const employee = await Employee.findByPk(booking.agent_id);
- const designation = await Designation.findByPk(employee.designation_id);
+ const designation = await Percentage.findOne({
+  where: { desig_id:employee.desig_id,venture_id:venture.venture_id },
+});
+
+if (!designation) {
+  await t.rollback();
+  return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture 1" });
+}
  const commissionPercentage = designation.percentage;
  const referralId = employee.referralId;
 //  console.log(booking,"////",employee,referralId)
@@ -306,7 +329,15 @@ if(phases.status !=="active"){
       }
 
   // get the commission percentage for the employee's designation
-  const referralDesignation = await Designation.findByPk(referralEmployee.designation_id);
+  
+  const referralDesignation = await Percentage.findOne({
+    where: { desig_id:referralEmployee.desig_id,venture_id:venture.venture_id },
+  });
+  
+  if (!designation) {
+    await t.rollback();
+    return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture 1" });
+  }
   const rcommissionPercentage = referralDesignation.percentage;
 
   // calculate the commission amount
@@ -364,15 +395,29 @@ if(phases.status !=="active"){
       }
   
       // create the payment
+      // create the payment
       const payment = await Payment.create(
-        { amount, plot_id, payment_method, customer_id },
+        { amount, booking_id, payment_method,customer_id,plot_id:booking.plot_id,venture_id:venture.venture_id   },
         { transaction: t }
       );
-  
       // get the commission percentage for the agent's designation
       const booking = await PlotBooking.findOne({ where: { plot_id } });
       const employee = await Employee.findByPk(booking.agent_id);
-      const designation = await Designation.findByPk(employee.designation_id);
+          // check if venture exists
+    const venture = await Venture.findByPk(plot.venture_id);
+  
+    if (!venture) {
+      await t.rollback();
+      return res.status(400).json({ success: false, message: "Venture not found" });
+    }
+      const designation = await Percentage.findOne({
+        where: { desig_id:employee.desig_id,venture_id:venture.venture_id },
+      });
+      
+      if (!designation) {
+        await t.rollback();
+        return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture 1" });
+      }
       const commissionPercentage = designation.percentage;
       const referralId = employee.referralId;
   
@@ -397,7 +442,15 @@ if(phases.status !=="active"){
         }
   
         // get the commission percentage for the employee's designation
-        const referralDesignation = await Designation.findByPk(referralEmployee.designation_id);
+        const referralDesignation = await Percentage.findOne({
+          where: { desig_id:referralEmployee.desig_id,venture_id:venture.venture_id },
+        });
+        
+        if (!designation) {
+          await t.rollback();
+          return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture 1" });
+        }
+       
         const rcommissionPercentage = referralDesignation.percentage;
   
         // calculate the commission amount

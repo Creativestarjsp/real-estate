@@ -7,7 +7,13 @@ const sequelize = new Sequelize(process.env.MYSQLDATABASE,process.env.MYSQLUSER,
   port:process.env.MYSQLPORT, 
   define: {
     timestamps: true
-  }
+  },
+  pool: {
+    max: 10, // Maximum number of connection instances in the pool
+    min: 0, // Minimum number of connection instances in the pool
+    acquire: 30000, // Maximum time (in milliseconds) that a connection can be idle before being released
+    idle: 10000, // Maximum time (in milliseconds) that a connection can be idle before being closed
+  },
 });
 
 // Test the database connection

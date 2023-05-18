@@ -12,10 +12,11 @@ router.get('/:id',Getby_id)
 router.put('/:id',Updateby_id)
 router.delete('/:id',Delete_id)
 router.get('/v/status',updateVentureStatus)
-router.get("/u/status",updateUserStatus)
+router.get("/u/status",updateUserStatus) 
 router.get("/e/status",updateEmployeeStatus)
 router.get("/d/status",updateDesignationStatus)
 router.get("/p/status",updatePhaseStatus)
+
 router.get("/all/agents",getAgentEmployees)
 // router.post('/designation',CreateD)
 

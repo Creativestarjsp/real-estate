@@ -243,7 +243,33 @@ getVenturePayments: async (req, res) => {
     console.error(error);
     return res.status(500).json({ message: 'Internal server error' });
   }
-}
+},
+getVentureStats : async (req, res) => {
+  try {
+    const { venture_id } = req.params;
+
+    // Get today's bookings count
+    const todayBookingsCount = await PlotBooking.count({
+      where: {
+        venture_id,
+        createdAt: {
+          [Op.gte]: new Date().setHours(0, 0, 0, 0), // Today's date
+        },
+      },
+    });
+
+    // Get total bookings count
+    const totalBookingsCount = await PlotBooking.count({
+      where: {
+        venture_id,
+      },
+    });
+
+    res.status(200).json({ todayBookingsCount, totalBookingsCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch venture stats.' });
+  }},
 
 
  

@@ -9,5 +9,5 @@ router.post("/register",Create)
 router.get("/:id",getBookingPaymentDetails)
 router.put("/addpay",addPayment)
 
-
+ 
 module.exports = router;

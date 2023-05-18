@@ -77,16 +77,14 @@ const Designation = sequelize.define('designation', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique:'name'
+   
   },
-  percentage: {
-    type: DataTypes.FLOAT,
-    allowNull: false
-  },status: {
+   status: {
     type: DataTypes.ENUM('active','inactive'),
     allowNull: false,
     defaultValue: 'active',
   },
+  
 },{indexes:[
   {
     
@@ -111,14 +109,34 @@ const Employee = sequelize.define('employee', {
     unique:'email'
   },phone: {
     type: DataTypes.BIGINT(20),
-    allowNull: true,
+    allowNull: false,
+    unique:'phone'
    
   },
   password: {
     type: DataTypes.STRING,
     allowNull: false
+  }, payee_name: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
-  designation_id: {
+  account_number: {
+    type: DataTypes.BIGINT,
+    allowNull: false
+  },
+  ifsc: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  bank_name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  branch: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  desig_id: {
     type: DataTypes.BIGINT,
     allowNull: false,
     references:{
@@ -451,6 +469,9 @@ const Payment = sequelize.define('Payment', {
       model: 'venture',
       key: 'venture_id'
     }},
+    remarks: {
+      type: DataTypes.STRING
+    },
 }, {indexes:[
   {
     
@@ -505,6 +526,42 @@ const PayCommission = sequelize.define('PayCommission', {
 });
 
 
+const Percentage = sequelize.define('percentage', {
+  per_id: {
+    type: DataTypes.BIGINT,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  percentage: {
+    type: DataTypes.FLOAT,
+    allowNull: false
+  },
+  venture_id: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+    references: {
+      model: 'venture',
+      key: 'venture_id'
+    }},
+    desig_id: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+    references: {
+      model: 'designation',
+      key: 'desig_id'
+    }
+  }
+},{indexes:[
+  {
+    
+      fields: ['per_id','venture_id']
+    
+  }
+],
+  tableName: 'percentage',
+  timestamps: true,
+});
+
 const Expenditure = sequelize.define('Expenditure', {
   id: {
     type: DataTypes.BIGINT,
@@ -542,4 +599,5 @@ const Expenditure = sequelize.define('Expenditure', {
 
 
 
-  module.exports={Venture,Phase,Plot,User,Employee,Designation,PlotBooking,Commission,Payment,PayCommission,Expenditure}
+
+  module.exports={Venture,Phase,Plot,User,Employee,Designation,PlotBooking,Commission,Payment,PayCommission,Expenditure,Percentage}

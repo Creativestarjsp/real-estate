@@ -494,10 +494,84 @@ where:{
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
       }
-    }
+    },
+    getMonthWiseExpenditure : async (req, res) => {
+      try {
+        const { date } = req.body;
+        const formattedDate = moment(date).format("YYYY-MM");
+    
+        // Get amounts spent from Expenditure
+        const amountSpent = await Expenditure.sum("amount", {
+          where: {
+            date: {
+              [Op.startsWith]: formattedDate,
+            },
+          },
+        });
+    
+        // Get received amounts from Payment
+        const receivedAmounts = await Payment.findAndCountAll({
+          where: {
+            createdAt: {
+              [Op.startsWith]: formattedDate,
+            },
+          },
+        });
+    
+        // Get number of plot sales from PlotBooking
+        const plotSales = await PlotBooking.count({
+          where: {
+            createdAt: {
+              [Op.startsWith]: formattedDate,
+            },
+          },
+        });
+    
+        // Get number of plot payments
+        const plotPayments = await Payment.count({
+          where: {
+            createdAt: {
+              [Op.startsWith]: formattedDate,
+            },
+          },
+        });
+    
+        // Get data from Expenditure table
+        const expenditureData = await Expenditure.findAll({
+          where: {
+            date: {
+              [Op.startsWith]: formattedDate,
+            },
+          },
+          attributes: ["date", "mobileNumber", "purpose", "expensesType", "remarks", "amount"],
+        });
+    
+        // Get data from Payment table
+        const paymentData = await Payment.findAll({
+          where: {
+            createdAt: {
+              [Op.startsWith]: formattedDate,
+            },
+          },
+        });
+    
+        res.json({
+          amountSpent,
+          receivedAmounts,
+          plotSales,
+          plotPayments,
+          expenditureData,
+          paymentData,
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+      }
+    },
+    
     
     
   
   
 
-}
+} 

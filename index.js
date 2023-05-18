@@ -11,7 +11,7 @@ const sequelize = require('./Config/db');
 const jwt =require('jsonwebtoken')
 const cors =require('cors')
 app.use(cors());
-const {Venture,Phase,User,Plot, Employee, Designation,PlotBooking,Commission,Payment,PayCommission}=require('./Models/models')
+const {Venture,Phase,User,Plot, Employee, Designation,PlotBooking,Commission,Payment,PayCommission,Percentage}=require('./Models/models')
 const {verifyToken}=require("./helpers/jwt_helper")
 const bcrypt = require('bcrypt');
 //  Import Routes
@@ -42,6 +42,11 @@ Venture.hasMany(Plot, {
   }
 });
 
+Venture.hasMany(Designation, { foreignKey: 'venture_id' });
+Venture.hasMany(Percentage, { foreignKey: 'venture_id' });
+Designation.hasMany(Percentage, { foreignKey: 'desig_id' });
+Percentage.belongsTo(Venture, { foreignKey: 'venture_id' });
+Percentage.belongsTo(Designation, { foreignKey: 'desig_id' });
 Phase.belongsTo(Venture, {
   foreignKey: {
     name: 'venture_id'
@@ -80,7 +85,7 @@ Employee.belongsTo(Employee,{
 
 Employee.belongsTo(Designation,{
   foreignKey:{
-    name:"designation_id"
+    name:"desig_id"
   }
 })
 
@@ -120,7 +125,7 @@ Commission.belongsTo(Employee, {
 });
 
 Commission.belongsTo(PlotBooking, {
-  foreignKey: 'plotBookingId',
+  foreignKey: 'booking_id',
   as: 'plotBooking'
 });
 
@@ -128,6 +133,7 @@ Payment.belongsTo(PlotBooking, {
   foreignKey: 'booking_id',
   as: 'plotBooking'
 });
+Payment.belongsTo(PlotBooking, { foreignKey: 'booking_id', as: 'plot_booking' });
 // define the association in Payment model
 Payment.belongsTo(Venture, {
   foreignKey: 'venture_id'
@@ -148,12 +154,12 @@ Commission.belongsTo(Plot, { foreignKey: 'plot_id' });
 
 PayCommission.belongsTo(Employee, { foreignKey: 'agent_id' });
 PayCommission.belongsTo(Plot, { foreignKey: 'plot_id' });
-Payment.belongsTo(PlotBooking, { foreignKey: 'booking_id', as: 'plot_booking' });
+
 Payment.belongsTo(PlotBooking);
 Plot.belongsTo(Venture, { foreignKey: 'venture_id' });
 // Sync the database models
 // Sync the models with the database
-sequelize.sync({ alter: false, force: false, hooks: true })
+sequelize.sync({ alter: true, force: true, hooks: true })
   .then(async () => { // Use async function to use await for bcrypt
     console.log('Database connected and models synced.');
 
@@ -169,7 +175,7 @@ sequelize.sync({ alter: false, force: false, hooks: true })
       // Insert designation data if not already present
       await Designation.findOrCreate({
         where: { name: 'admin' }, // Check if 'admin' designation already exists
-        defaults: { name: 'admin', percentage: 0 } // Insert 'admin' designation with null percentage if not found
+        defaults: { name: 'admin' } // Insert 'admin' designation with null percentage if not found
       });
 
       // Get the 'admin' designation
@@ -180,8 +186,8 @@ sequelize.sync({ alter: false, force: false, hooks: true })
         name: process.env.ADMINNAME,
         email: process.env.EMAIL,
         role: process.env.ROLE,
-        password: hashedPassword, // Set the hashed password
-        designation_id: adminDesignation.desig_id // Set the 'admin' designation_id
+        password:process.env.PASSWORD, // Set the hashed password
+        desig_id: adminDesignation.desig_id // Set the 'admin' desig_id
       });
 
       console.log('Admin added to the employee table.');

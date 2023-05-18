@@ -1,4 +1,4 @@
-const {Employee,Designation} = require('../Models/models')
+const {Employee,Designation,Percentage} = require('../Models/models')
 
 
 module.exports={
@@ -9,13 +9,13 @@ module.exports={
         try {
           if(req.user.userType !== "employee" && req.user.userType !== "admin"){
             return res.status(403).json({ message: 'Access Forbidden' })}
-            const { name, percentage } = req.body;
-            console.log(name,percentage)
-            const desg_name = await Designation.findOne({ where: { name } });
-            if (desg_name) {
-              return res.status(400).json({ error: 'Designation already exists' });
+            const { name, } = req.body;
+            console.log(name)
+            const existingDesignation = await Designation.findOne({ where: { name} });
+            if (existingDesignation) {
+             return res.status(400).json({ error: 'Designation already exists' });
             }
-            const newDesignation = await Designation.create({ name, percentage });
+            const newDesignation = await Designation.create({ name });
             res.json(newDesignation);
           } catch (err) {
             console.error(err);
@@ -104,6 +104,79 @@ module.exports={
           console.error(err.message);
           res.status(500).send('Server error');
         }
-      }
+      },
+      // Create a new percentage
+createPercentage :async (req, res) => {
+  try {
+    const { venture_id, desig_id, percentage } = req.body;
 
+    if(!venture_id ||!desig_id ||!percentage ){
+      return res.status(400).json({ message: 'Fields are Missing' });
+    }
+    // Check if the percentage already exists
+    const existingPercentage = await Percentage.findOne({
+      where: {
+        venture_id,
+        desig_id,
+      },
+    });
+
+    if (existingPercentage) {
+      return res.status(400).json({ message: 'Percentage already exists' });
+    }
+
+    // Create the new percentage
+    const newPercentage = await Percentage.create({
+      venture_id,
+      desig_id,
+      percentage,
+    });
+
+    res.json(newPercentage);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+},
+updatePercentage : async (req, res) => {
+  try {
+    const { percentage } = req.body;
+    const { per_id } = req.params;
+
+    // Find the percentage by ID
+    const existingPercentage = await Percentage.findByPk(per_id);
+
+    if (!existingPercentage) {
+      return res.status(404).json({ message: 'Percentage not found' });
+    }
+
+    // Update the percentage
+    existingPercentage.percentage = percentage;
+    await existingPercentage.save();
+
+    res.json(existingPercentage);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+},
+deletePercentage : async (req, res) => {
+  try {
+    const { per_id } = req.params;
+
+    // Find the percentage by ID
+    const existingPercentage = await Percentage.findByPk(per_id);
+
+    if (!existingPercentage) {
+      return res.status(404).json({ message: 'Percentage not found' });
+    }
+
+    // Delete the percentage
+    await existingPercentage.destroy();
+
+    res.json({ message: 'Percentage deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }},
 }
