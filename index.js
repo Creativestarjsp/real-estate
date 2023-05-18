@@ -159,7 +159,7 @@ Payment.belongsTo(PlotBooking);
 Plot.belongsTo(Venture, { foreignKey: 'venture_id' });
 // Sync the database models
 // Sync the models with the database
-sequelize.sync({ alter: false, force: false, hooks: true })
+sequelize.sync({ alter: true, force: true, hooks: true })
   .then(async () => { // Use async function to use await for bcrypt
     console.log('Database connected and models synced.');
 
@@ -185,6 +185,7 @@ sequelize.sync({ alter: false, force: false, hooks: true })
       const data = await Employee.create({
         name: process.env.ADMINNAME,
         email: process.env.EMAIL,
+        phone:1234567890,
         role: process.env.ROLE,
         password:process.env.PASSWORD, // Set the hashed password
         desig_id: adminDesignation.desig_id // Set the 'admin' desig_id

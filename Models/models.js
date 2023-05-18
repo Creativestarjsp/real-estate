@@ -118,23 +118,23 @@ const Employee = sequelize.define('employee', {
     allowNull: false
   }, payee_name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   account_number: {
     type: DataTypes.BIGINT,
-    allowNull: false
+    allowNull: true
   },
   ifsc: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   bank_name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   branch: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   desig_id: {
     type: DataTypes.BIGINT,
