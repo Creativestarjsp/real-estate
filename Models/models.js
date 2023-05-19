@@ -33,7 +33,7 @@ const Venture = sequelize.define('ventures', {
       
     }
   ],
-    tableName:"venture",timestamps: true,});
+    tableName:"venture",timestamps: true,paranoid: true});
 
   const Phase = sequelize.define('phase', {
     phase_id: {
@@ -64,7 +64,7 @@ const Venture = sequelize.define('ventures', {
         fields: ['venture_id']
       
     }
-  ],tableName:"phase",timestamps: true});
+  ],tableName:"phase",timestamps: true,paranoid: true});
 
 // 
 const Designation = sequelize.define('designation', {
@@ -95,7 +95,8 @@ const Designation = sequelize.define('designation', {
     }
   ],
   tableName: "designation",
-  timestamps: true
+  timestamps: true,
+  paranoid: true
 });
 
 // 
@@ -174,7 +175,7 @@ const Employee = sequelize.define('employee', {
       fields: ['emp_id',"email"]
     
   }
-],tableName:"employee",  timestamps: true,});
+],tableName:"employee",  timestamps: true,paranoid: true});
 
 // 
 const User = sequelize.define('user', {
@@ -252,7 +253,7 @@ const User = sequelize.define('user', {
       fields: ['user_id']
     
   }
-],tableName:"user",timestamps: true,})
+],tableName:"user",timestamps: true,paranoid: true})
 
 // 
   
@@ -335,7 +336,7 @@ const Plot = sequelize.define('plot', {
       fields: ['plot_id']
     
   }
-],tableName:"plot",timestamps: true,});
+],tableName:"plot",timestamps: true,paranoid: true});
 
 
 const PlotBooking = sequelize.define('plotbooking', {
@@ -382,7 +383,7 @@ const PlotBooking = sequelize.define('plotbooking', {
       fields: ['booking_id']
     
   }
-],tableName:"plotbooking",timestamps: true,});
+],tableName:"plotbooking",timestamps: true,paranoid: true});
 
 const Commission = sequelize.define('commission', {
   commi_id: {
@@ -428,7 +429,7 @@ const Commission = sequelize.define('commission', {
       fields: ['commi_id','plot_id']
     
   }
-],tableName:"commission",  timestamps: true,});
+],tableName:"commission",  timestamps: true,paranoid: true});
 
 const Payment = sequelize.define('Payment', {
   payment_id: {
@@ -487,6 +488,7 @@ const Payment = sequelize.define('Payment', {
 ],
   tableName: 'payment',
   timestamps: true,
+  paranoid: true
   
 });
 
@@ -529,6 +531,7 @@ const PayCommission = sequelize.define('PayCommission', {
 }, {
   tableName: 'paycommission',
   timestamps: true,
+  paranoid: true
 });
 
 
@@ -566,6 +569,7 @@ const Percentage = sequelize.define('percentage', {
 ],
   tableName: 'percentage',
   timestamps: true,
+  paranoid: true
 });
 
 const Expenditure = sequelize.define('Expenditure', {
@@ -601,6 +605,7 @@ const Expenditure = sequelize.define('Expenditure', {
 }, {
   tableName: 'expenditure',
   timestamps: true,
+  paranoid: true
 });
 
 

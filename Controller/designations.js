@@ -222,7 +222,17 @@ updatePercentage: async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 },
+getAllPercentages : async (req, res) => {
+  try {
+    // Retrieve all percentages
+    const allPercentages = await Percentage.findAll();
 
+    res.json(allPercentages);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+},
 deletePercentage : async (req, res) => {
   try {
     const { per_id } = req.params;
