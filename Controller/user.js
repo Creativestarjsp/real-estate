@@ -22,7 +22,7 @@ module.exports={
         const offset = (page - 1) * limit;
     
         const users = await User.findAll({
-          attributes: ['user_id', 'name', 'email', 'phone', 'phone2', 'address', 'aadharNumber', 'pan', 'agent_id','password'],
+          attributes: ['user_id', 'name', 'email', 'phone', 'phone2', 'address', 'aadharNumber', 'pan', 'agent_id','password','status'],
           limit,
           offset
         });
