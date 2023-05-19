@@ -148,6 +148,11 @@ Payment.belongsTo(Plot, { foreignKey: 'plot_id' });
 Plot.hasMany(Payment, { foreignKey: 'plot_id' });
 
 Employee.hasMany(Plot, { foreignKey: 'agent_id' });
+Employee.belongsTo(Employee, {
+  foreignKey: 'up_level_emp_id',
+  as: 'upLevelEmployee',
+});
+
 Plot.belongsTo(Employee, { foreignKey: 'agent_id' });
 
 Commission.belongsTo(Plot, { foreignKey: 'plot_id' });

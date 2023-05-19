@@ -1,5 +1,5 @@
 const express =require('express');
-const { CreateD, GetAll_D, Get_by_id, Update_by_id, Delete_by_id,createPercentage,updatePercentage,deletePercentage } = require('../Controller/designations');
+const { CreateD, GetAll_D, Get_by_id, Update_by_id, Delete_by_id,createPercentage,updatePercentage,deletePercentage,getAllUsersByDesignation } = require('../Controller/designations');
 
 const router =express.Router()
 
@@ -8,6 +8,8 @@ router.get('/all',GetAll_D)
 router.get('/:id',Get_by_id)
 router.put('/:id',Update_by_id)
 router.delete('/:id',Delete_by_id)
+router.get('/uplevel_agent/:desig_id',getAllUsersByDesignation)
+
 // Create a new percentage
 router.post('/percentage', createPercentage);
 

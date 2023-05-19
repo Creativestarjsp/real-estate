@@ -67,7 +67,6 @@ const Venture = sequelize.define('ventures', {
   ],tableName:"phase",timestamps: true});
 
 // 
-
 const Designation = sequelize.define('designation', {
   desig_id: {
     type: DataTypes.BIGINT,
@@ -76,22 +75,27 @@ const Designation = sequelize.define('designation', {
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false,
-   
+    allowNull: false
   },
-   status: {
-    type: DataTypes.ENUM('active','inactive'),
+  status: {
+    type: DataTypes.ENUM('active', 'inactive'),
     allowNull: false,
     defaultValue: 'active',
   },
-  
-},{indexes:[
-  {
-    
+  order: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+}, {
+  indexes: [
+    {
       fields: ['desig_id']
-    
-  }
-],tableName:"designation",timestamps: true});
+    }
+  ],
+  tableName: "designation",
+  timestamps: true
+});
+
 // 
 const Employee = sequelize.define('employee', {
   emp_id: {

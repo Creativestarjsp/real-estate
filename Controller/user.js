@@ -39,16 +39,10 @@ module.exports={
     getbyid: async (req, res) => {
       try {
         // Validate request parameters
-        await param('id').isInt({ min: 1 }).withMessage('Invalid user ID').toInt().run(req);
-    
-        // Check for validation errors
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-          return res.status(400).json({ errors: errors.array() });
-        }
+       
     
         const id = req.params.id;
-        console.log(req.user.aud)
+        console.log(req.user.aud,id)
         if (req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.aud[0] != id) {
           return res.status(403).json({ message: 'Access Forbidden' });
         }
