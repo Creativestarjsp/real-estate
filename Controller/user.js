@@ -11,14 +11,7 @@ module.exports={
     getAllUsers: async (req, res) => {
       try {
         // Validate request query parameters
-        await query('page').optional().isInt({ min: 1 }).withMessage('Invalid page number').toInt().run(req);
-        await query('limit').optional().isInt({ min: 1 }).withMessage('Invalid limit value').toInt().run(req);
-    
-        // Check for validation errors
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-          return res.status(400).json({ errors: errors.array() });
-        }
+       
     
         if (req.user.userType !== "employee" && req.user.userType !== "admin") {
           return res.status(403).json({ message: 'Access Forbidden' });
