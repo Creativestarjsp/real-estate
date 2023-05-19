@@ -113,7 +113,7 @@ Get_All: async (req, res) => {
   
       if (!designation) {
         await t.rollback();
-        return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture" });
+        return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture1" });
       }
   
       const commissionPercentage = designation.percentage;
@@ -155,7 +155,7 @@ Get_All: async (req, res) => {
   
         if (!referralDesignation) {
           await t.rollback();
-          return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture" });
+          return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture2" });
         }
   
         const rcommissionPercentage = referralDesignation.percentage;
