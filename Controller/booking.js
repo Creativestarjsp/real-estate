@@ -148,11 +148,12 @@ Get_All: async (req, res) => {
         if (!referralEmployee) {
           break;
         }
+        console.log(referralEmployee,"find refferal");
   
         const referralDesignation = await Percentage.findOne({
           where: { desig_id: referralEmployee.desig_id, venture_id: venture.venture_id },
         });
-  
+        console.log(referralDesignation,"ppppp")
         if (!referralDesignation) {
           await t.rollback();
           return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture2" });

@@ -45,6 +45,7 @@ Venture.hasMany(Plot, {
 Venture.hasMany(Designation, { foreignKey: 'venture_id' });
 Venture.hasMany(Percentage, { foreignKey: 'venture_id' });
 Designation.hasMany(Percentage, { foreignKey: 'desig_id' });
+
 Percentage.belongsTo(Venture, { foreignKey: 'venture_id' });
 Percentage.belongsTo(Designation, { foreignKey: 'desig_id' });
 Phase.belongsTo(Venture, {

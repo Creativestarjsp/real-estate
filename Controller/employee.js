@@ -82,7 +82,12 @@ module.exports={
           let uplevelAgents = [];
       
           const findUplevelAgents = async (referralId) => {
-            const uplineAgent = await Employee.findOne({ where: { emp_id:referralId } });
+            const uplineAgent = await Employee.findOne({ where: { emp_id:referralId }, include:[
+              {
+                model:Designation,
+                attributes:['name']
+              }
+            ], });
             if (uplineAgent) {
               uplevelAgents.push(uplineAgent);
               if (uplineAgent.referralId) {
