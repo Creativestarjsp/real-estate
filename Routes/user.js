@@ -5,7 +5,7 @@ const router =express.Router()
 
 router.post('/register',Register)
 router.post('/changepassword',changePassword)
-router.post("/all",getAllUsers)
+router.get("/all",getAllUsers)
 router.get("/:id",getbyid)
 router.put("/:id",updatebyid)
 router.delete("/del/:id",deletebyid)
