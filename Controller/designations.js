@@ -1,5 +1,5 @@
-const {Employee,Designation,Percentage} = require('../Models/models')
-const { Op } = require("sequelize");
+const {Employee,Designation,Percentage, Venture} = require('../Models/models')
+const { Op, Model } = require("sequelize");
 
 module.exports={
   
@@ -225,7 +225,12 @@ updatePercentage: async (req, res) => {
 getAllPercentages : async (req, res) => {
   try {
     // Retrieve all percentages
-    const allPercentages = await Percentage.findAll();
+    const allPercentages = await Percentage.findAll({
+      include: [
+        { model: Venture, attributes: ['name'] },
+        { model: Designation, attributes: ['name'] }
+      ]
+    });
 
     res.json(allPercentages);
   } catch (error) {

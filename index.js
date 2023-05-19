@@ -183,7 +183,7 @@ sequelize.sync({ alter: false, force: false, hooks: false })
       // Insert designation data if not already present
       await Designation.findOrCreate({
         where: { name: 'admin' }, // Check if 'admin' designation already exists
-        defaults: { name: 'admin' } // Insert 'admin' designation with null percentage if not found
+        defaults: { name: 'admin' ,order:0} // Insert 'admin' designation with null percentage if not found
       });
 
       // Get the 'admin' designation
