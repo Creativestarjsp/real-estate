@@ -75,7 +75,8 @@ const Designation = sequelize.define('designation', {
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    unique:'order'
   },
   status: {
     type: DataTypes.ENUM('active', 'inactive'),
@@ -85,6 +86,7 @@ const Designation = sequelize.define('designation', {
   order: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    unique:'order'
   },
 }, {
   indexes: [

@@ -9,13 +9,21 @@ module.exports={
         try {
           if(req.user.userType !== "employee" && req.user.userType !== "admin"){
             return res.status(403).json({ message: 'Access Forbidden' })}
-            const { name, } = req.body;
+            const { name,order } = req.body;
             console.log(name)
-            const existingDesignation = await Designation.findOne({ where: { name} });
+            const existingDesignation = await Designation.findOne({
+              where: {
+                name: name,
+                order:order
+              }
+            });
+            
             if (existingDesignation) {
-             return res.status(400).json({ error: 'Designation already exists' });
+              // Both name and order already exist
+              return res.status(400).json({ error: 'Designation already exists.' });
             }
-            const newDesignation = await Designation.create({ name });
+            
+            const newDesignation = await Designation.create({ name,order });
             res.json(newDesignation);
           } catch (err) {
             console.error(err);
@@ -57,7 +65,7 @@ module.exports={
         try {
           if(req.user.userType !== "employee" && req.user.userType !== "admin"){
             return res.status(403).json({ message: 'Access Forbidden' })}
-            const { name, percentage } = req.body;
+            const { name,order } = req.body;
             const updateObj = {};
 
             // Check if properties exist in request body and validate them
@@ -67,11 +75,8 @@ module.exports={
             }
             updateObj.name = name;
             }
-            if (percentage) {
-            if (typeof percentage !== 'number' || percentage < 0 || percentage > 100) {
-            return res.status(400).json({ msg: 'Percentage must be a number between 0 and 100' });
-            }
-            updateObj.percentage = percentage;
+            if(order){
+              updateObj.order=order
             }
 
             const designation = await Designation.findByPk(req.params.id);
@@ -134,15 +139,15 @@ module.exports={
                 order: [[Designation, 'order', 'ASC']],
               });
 
-              users.push(employees)
-              // for (const employee of employees) {
-              //   users.push({
-              //     emp_id: employee.emp_id,
-              //     name: employee.name,
-              //     desig_id: employee.desig_id,
-              //     designation: employee.designation.name,
-              //   });
-              // }
+              // users.push(employees)
+              for (const employee of employees) {
+                users.push({
+                  emp_id: employee.emp_id,
+                  name: employee.name,
+                  desig_id: employee.desig_id,
+                  designation: employee.designation.name,
+                });
+              }
             }
           }
       
@@ -188,7 +193,7 @@ createPercentage :async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 },
-updatePercentage : async (req, res) => {
+updatePercentage: async (req, res) => {
   try {
     const { percentage } = req.body;
     const { per_id } = req.params;
@@ -200,8 +205,15 @@ updatePercentage : async (req, res) => {
       return res.status(404).json({ message: 'Percentage not found' });
     }
 
-    // Update the percentage
-    existingPercentage.percentage = percentage;
+    // Check if the percentage value is provided and validate it
+    if (percentage) {
+      if (typeof percentage !== 'number' || percentage < 0 || percentage > 100) {
+        return res.status(400).json({ message: 'Percentage must be a number between 0 and 100' });
+      }
+      existingPercentage.percentage = percentage;
+    }
+
+    // Save the updated percentage
     await existingPercentage.save();
 
     res.json(existingPercentage);
@@ -210,6 +222,7 @@ updatePercentage : async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 },
+
 deletePercentage : async (req, res) => {
   try {
     const { per_id } = req.params;
