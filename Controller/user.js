@@ -66,23 +66,7 @@ updatebyid: async (req, res) => {
   try {
     const id = req.params.id;
 
-    // Validate request parameters
-    await param('id').isInt({ min: 1 }).withMessage('Invalid user ID').toInt().run(req);
-
-    // Validate request body
-    await body('name').optional().isString().withMessage('Invalid name').run(req);
-    await body('email').optional().isEmail().withMessage('Invalid email').run(req);
-    await body('phone').optional().isNumeric().withMessage('Invalid phone number').run(req);
-    await body('phone2').optional().isNumeric().withMessage('Invalid secondary phone number').run(req);
-    await body('address').optional().isString().withMessage('Invalid address').run(req);
-    await body('aadhar').optional().isString().withMessage('Invalid Aadhar number').run(req);
-    await body('pan').optional().isString().withMessage('Invalid PAN number').run(req);
-
-    // Check for validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    
 
     const updateObj = {};
     if (req.body.name) {
@@ -185,13 +169,7 @@ deletebyid: async (req, res) => {
       getUserBookedPlots1: async (req, res) => {
         try {
           // Validate request parameters
-          await param('userId').isInt({ min: 1 }).withMessage('Invalid user ID').toInt().run(req);
-      
-          // Check for validation errors
-          const errors = validationResult(req);
-          if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-          }
+        
       
           const { userId } = req.params;
           if (req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.aud[0] != userId) {
@@ -246,6 +224,7 @@ deletebyid: async (req, res) => {
         }
       },
     
+      //
       changePassword: async (req, res, next) => {
         const { oldPassword, newPassword } = req.body;
         const id = req.user.aud[0];

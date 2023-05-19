@@ -1,5 +1,5 @@
 const {Employee,Designation,Percentage} = require('../Models/models')
-
+const { Op } = require("sequelize");
 
 module.exports={
   
@@ -105,40 +105,44 @@ module.exports={
           res.status(500).send('Server error');
         }
       },
-      getAllUsersByDesignation :async (req, res) => {
+     
+
+      getAllUsersByDesignation: async (req, res) => {
         try {
           const { desig_id } = req.params;
-          let users = [];
-      
-          const findUplevelEmployees = async (referral_id) => {
-            const upLevelEmployee = await Employee.findOne({ where: { emp_id: referral_id } });
-            if (upLevelEmployee) {
-              users.push({
-                emp_id: upLevelEmployee.emp_id,
-                name: upLevelEmployee.name,
-                desig_id: upLevelEmployee.desig_id,
-                designation: upLevelEmployee.designation, // Add designation property
-              });
-              if (upLevelEmployee.referral_id) {
-                await findUplevelEmployees(upLevelEmployee.referral_id);
-              }
-            }
-          };
-      
-          const employees = await Employee.findAll({ where: { desig_id } });
-          if (!employees) {
-            return res.status(404).json({ message: 'Employees not found' });
+
+          if(!desig_id){
+            return res.status(404).json({ message: 'Required input fields' });
           }
+          const users = [];
       
-          for (const employee of employees) {
-            users.push({
-              emp_id: employee.emp_id,
-              name: employee.name,
-              desig_id: employee.desig_id,
-              designation: employee.designation, // Add designation property
+          const data = await Designation.findByPk(desig_id);
+      
+          if (data) {
+            const designations = await Designation.findAll({
+              where: {
+                order: {
+                  [Op.lt]: data.order
+                }
+              }
             });
-            if (employee.referral_id) {
-              await findUplevelEmployees(employee.referral_id);
+            for (const designation of designations) {
+              const employees = await Employee.findAll({
+                where: { desig_id: designation.desig_id },
+                include: [{ model: Designation, attributes: ['name'] }],
+                attributes: ["desig_id","emp_id","name"],
+                order: [[Designation, 'order', 'ASC']],
+              });
+
+              users.push(employees)
+              // for (const employee of employees) {
+              //   users.push({
+              //     emp_id: employee.emp_id,
+              //     name: employee.name,
+              //     desig_id: employee.desig_id,
+              //     designation: employee.designation.name,
+              //   });
+              // }
             }
           }
       
@@ -148,7 +152,9 @@ module.exports={
           return res.status(500).json({ message: 'Internal server error' });
         }
       },
-     
+      
+      
+      
       // Create a new percentage 
 createPercentage :async (req, res) => {
   try {

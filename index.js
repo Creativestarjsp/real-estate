@@ -88,6 +88,9 @@ Employee.belongsTo(Designation,{
     name:"desig_id"
   }
 })
+Employee.belongsTo(Designation, { foreignKey: 'desig_id', as: 'Designation' });
+Designation.hasMany(Employee, { foreignKey: 'desig_id', as: 'Employees' });
+
 
 PlotBooking.hasOne(Employee,{
   foreignKey:{
@@ -164,7 +167,7 @@ Payment.belongsTo(PlotBooking);
 Plot.belongsTo(Venture, { foreignKey: 'venture_id' });
 // Sync the database models
 // Sync the models with the database
-sequelize.sync({ alter: false, force: false, hooks: false })
+sequelize.sync({ alter: true, force: false, hooks: false })
   .then(async () => { // Use async function to use await for bcrypt
     console.log('Database connected and models synced.');
 
