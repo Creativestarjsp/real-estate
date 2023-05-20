@@ -140,6 +140,7 @@ Create: async (req, res) => {
 
     let referral = agent.referralId;
     let prevAgentCommission=agentCommissionPercentage
+    
     while (referral) {
       const referralEmployee = await Employee.findByPk(referral);
       if (!referralEmployee) {
