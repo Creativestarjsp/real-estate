@@ -1,4 +1,4 @@
-const {Employee,Designation} = require('../Models/models')
+const {Employee,Designation,User,PlotBooking,Plot} = require('../Models/models')
 const bcrypt = require('bcrypt');
 module.exports={
     ERegister: async (req, res) => {
@@ -218,6 +218,31 @@ module.exports={
       console.error(error);
       return res.status(500).json({ message: 'Internal server error' });
     }
-  }
+  },getUsersWithAgentPlots: async (req, res) => {
+    try {
+      const agentId = req.user.userId;
+  
+      // Get all plot bookings for the agent
+      const bookings = await PlotBooking.findAll({
+        where: { agent_id: agentId },
+        include: [
+          {
+            model: Plot,
+            include: [{ model: User }],
+          },
+        ],
+      });
+  
+      // Extract the customer objects from the plot bookings
+      const customers = bookings.map((booking) => booking.plot.customer);
+  
+      res.status(200).json({ success: true, data: customers });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: "Server Error" });
+    }
+  },
+  
+
   
 }

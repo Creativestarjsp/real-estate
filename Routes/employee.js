@@ -1,5 +1,5 @@
 const express =require('express');
-const { ERegister, Get_All, Getby_id, Updateby_id, Delete_id, getAgentEmployees, getAllAgents,getUplevelUsersByAgentId  } = require('../Controller/employee');
+const { ERegister, Get_All, Getby_id, Updateby_id, Delete_id, getAgentEmployees, getAllAgents,getUplevelUsersByAgentId, getUsersWithAgentPlots  } = require('../Controller/employee');
 const { updateVentureStatus, updateUserStatus, updateEmployeeStatus, updateDesignationStatus, updatePhaseStatus } = require('../Controller/dashboard');
 
 const router =express.Router()
@@ -18,6 +18,7 @@ router.get("/d/status",updateDesignationStatus)
 router.get("/p/status",updatePhaseStatus)
 
 router.get("/all/agents",getAgentEmployees)
+router.get('/users/agent/:agent_id', getUsersWithAgentPlots);
 // router.post('/designation',CreateD)
 
 module.exports = router;
