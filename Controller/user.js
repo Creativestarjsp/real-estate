@@ -172,6 +172,7 @@ deletebyid: async (req, res) => {
         
       
           const { userId } = req.params;
+          console.log(userId)
           if (req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.aud[0] != userId) {
             return res.status(403).json({ message: 'Access Forbidden' });
           }
@@ -223,6 +224,39 @@ deletebyid: async (req, res) => {
           res.status(500).json({ message: 'Unable to fetch booked plots.' });
         }
       },
+
+      // getUserBookedPlots1:async (req, res) => {
+      //   try { 
+          
+      //     const { userId } = req.params;
+      //     if (req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.aud[0] != userId) {
+      //       return res.status(403).json({ message: 'Access Forbidden' });
+      //     }
+      //     const bookedPlots = await Plot.findAll({
+      //       where: {
+      //         customer_id:1,
+      //       },
+      //       attributes: [
+      //         'plot_id',
+      //         'plot_number',
+      //         'square_yards',
+      //         'facing',
+      //         'status',
+      //         'offer_price',
+      //         'customer_id',
+      //         [sequelize.literal('(offer_price )'), 'cost'],
+      //         [sequelize.fn('SUM', sequelize.col('Payments.amount')), 'paid_amount'],
+      //         [sequelize.literal('(offer_price - SUM(Payments.amount))'), 'balance'],
+      //       ],
+           
+      //     });
+      
+      //     res.status(200).json(bookedPlots);
+      //   } catch (error) {
+      //     console.log(error);
+      //     res.status(500).json({ message: 'Unable to fetch booked plots.' });
+      //   }
+      // },
     
       //
       changePassword: async (req, res, next) => {
@@ -231,15 +265,8 @@ deletebyid: async (req, res) => {
       
         try {
           // Validate request body
-          await body('oldPassword').notEmpty().withMessage('Old password is required').run(req);
-          await body('newPassword').notEmpty().withMessage('New password is required').run(req);
-      
-          // Check for validation errors
-          const errors = validationResult(req);
-          if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-          }
-      
+         
+        
           // Check if user or employee with given id exists
           const user = await User.findOne({ where: { id } });
           const employee = await Employee.findOne({ where: { id } });

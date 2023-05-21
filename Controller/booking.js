@@ -132,7 +132,11 @@ Create: async (req, res) => {
       { amount: agentCommissionAmount, employeeId: agent_id, plotBookingId: booking.booking_id, plot_id },
       { transaction: t }
     );
-
+  // create the payment
+  const payment = await Payment.create(
+    { amount,booking_id:booking.booking_id, payment_method,customer_id,plot_id:booking.plot_id,venture_id:venture.venture_id888},
+    { transaction: t }
+  );
     await Plot.update(
       { status: "hold", customer_id, agent_id },
       { where: { plot_id }, transaction: t }
@@ -297,6 +301,8 @@ if (!designation) {
 }
  const commissionPercentage = designation.percentage;
  const referralId = employee.referralId;
+
+   
 //  console.log(booking,"////",employee,referralId)
 
 
@@ -312,6 +318,7 @@ if (!designation) {
 
       // handle referrals
       let referral = referralId;
+      let prevAgentCommission=agentCommissionPercentage
       console.log(referralId)
       while (referral) {
       // get the employee associated with the referralId
@@ -332,12 +339,16 @@ if (!designation) {
     await t.rollback();
     return res.status(400).json({ success: false, message: "Commission percentage not found for the given designation and venture 1" });
   }
-  const rcommissionPercentage = referralDesignation.percentage;
+
+  const referralCommissionPercentage = referralPercentage.percentage;
+  const referralCommissionAmount = referralCommissionPercentage-prevAgentCommission
+  
 
   // calculate the commission amount
-  const commissionAmount = (amount * rcommissionPercentage) / 100;
+  const commissionAmount = (amount * referralCommissionAmount) / 100;
 
   const commissionEmployeeId = referral;
+  prevAgentCommission=referralCommissionPercentage
   console.log(commissionAmount,"next1")
   // create the commission for the employee
   const referralCommission = await Commission.create(
