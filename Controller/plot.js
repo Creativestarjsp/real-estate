@@ -6,9 +6,7 @@ module.exports = {
   // GET /plots
   GetAll: async (req, res) => {
     try {
-      const page = req.body.page || 1;
-      const limit = req.body.limit || 10;
-      const offset = (page - 1) * limit;
+    
 
    
     
@@ -26,8 +24,7 @@ module.exports = {
             ] 
           }
         ], 
-        limit,
-        offset
+       
       });
     
       res.status(200).json({ success: true, data: plots });
@@ -40,15 +37,11 @@ module.exports = {
 
 GetAll_by_VentureID: async (req, res) => {
   try {
-    const page = req.body.page || 1;
-    const limit = req.body.limit || 10;
-    const offset = (page - 1) * limit;
-
+   
     const vid=req.params.id
     const plots = await Plot.findAll({
       where: { venture_id: vid },
-      limit,
-      offset
+    
     });
     
         res.status(200).json({ success: true, data: plots });
@@ -255,6 +248,23 @@ GetAll_by_VentureID: async (req, res) => {
       
     } catch (error) {
       console.error(error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+   getPlotDetails :async(req, res)=> {
+    try {
+      const plotId = req.params.plotId;
+  
+      // Fetch plot details
+      const plot = await Plot.findByPk(plotId);
+      if (!plot) {
+        return res.status(404).json({ error: 'Plot not found' });
+      }
+  
+      // Return the plot details
+      return res.json(plot);
+    } catch (error) {
+      console.error('Error fetching plot details:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   },

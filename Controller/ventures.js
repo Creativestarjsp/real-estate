@@ -147,76 +147,92 @@ getAllVentures: async (req, res) => {
       }
     },
     
+    // getVentureBookings: async (req, res) => {
+    //   try {
+    //     const { venture_id ,page = 1, pageSize = 10} = req.body;
+    //     console.log(venture_id);
+        
+    
+    //     const venturePaymentInfo = await PlotBooking.findAndCountAll({
+    //       attributes: ['booking_id', 'createdAt', 'status'],
+    //       limit: pageSize,
+    //       offset: (page - 1) * pageSize,
+    //       order: [['createdAt', 'DESC']],
+    //       include: [
+    //         {
+    //           model: Plot,
+    //           attributes: ['plot_number', 'phase_id', 'status', 'offer_price'],
+    //           include: [
+    //             {
+    //               model: Phase,
+    //               attributes: ['name'],
+    //             },
+    //           ],
+    //           where: {
+    //             venture_id:venture_id, // Use shorthand syntax
+    //           },
+    //         },
+    //         {
+    //           model: User,
+    //           attributes: ['name', 'phone','user_id'],
+    //         },
+    //         {
+    //           model: Employee,
+    //           attributes: ['name'],
+    //         },
+    //       ],
+    //     });
+    
+    //     return res.status(200).json({
+    //       count: venturePaymentInfo.count,
+    //       rows: venturePaymentInfo.rows,
+    //     });
+    //   } catch (error) {
+    //     console.error(error);
+    //     return res.status(500).json({ message: 'Internal server error' });
+    //   }
+    // },
+
+
     getVentureBookings: async (req, res) => {
       try {
-        const { venture_id, page = 1, pageSize = 10 } = req.body;
+        const { venture_id } = req.body;
         console.log(venture_id);
+        
     
-        const venturePaymentInfo = await PlotBooking.findAndCountAll({
+        const venturePaymentInfo = await PlotBooking.findAll({
           attributes: ['booking_id', 'createdAt', 'status'],
-          limit: pageSize,
-          offset: (page - 1) * pageSize,
-          order: [['createdAt', 'DESC']],
+          
           include: [
             {
-              model: Plot,
-              attributes: ['plot_id', 'plot_number', 'phase_id', 'status', 'offer_price', 'square_yards'],
+              model: Plot,             
               include: [
                 {
                   model: Phase,
                   attributes: ['name'],
-                },
+                },{
+                  model:Payment,
+                  attributes:["payment_id","amount"]
+                }
               ],
               where: {
-                venture_id: venture_id, // Use shorthand syntax
+                venture_id:venture_id, // Use shorthand syntax
               },
             },
             {
               model: User,
-              attributes: ['name', 'phone', 'user_id'],
+              attributes: ['name', 'phone','user_id'],
             },
             {
               model: Employee,
               attributes: ['name'],
             },
-            {
-              model: Payment,
-              attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'total_amount']],
-              required: false,
-            },
           ],
-          group: ['plot.plot_id'], // Group by plot to get the correct total amount and count
-        });
-    
-        const rowsWithPaymentInfo = venturePaymentInfo.rows.map((booking) => {
-          const plot = booking.plot;
-          const totalAmount = booking.Payments.length > 0 ? booking.Payments[0].dataValues.total_amount : 0;
-          const paidAmount = parseFloat(totalAmount);
-          const remainingBalance = parseFloat(plot.offer_price) - paidAmount;
-    
-          return {
-            booking_id: booking.booking_id,
-            createdAt: booking.createdAt,
-            status: booking.status,
-            plot: {
-              plot_id: plot.plot_id,
-              plot_number: plot.plot_number,
-              phase_id: plot.phase_id,
-              status: plot.status,
-              offer_price: plot.offer_price,
-              square_yards: plot.square_yards,
-            },
-            user: booking.User,
-            employee: booking.Employee,
-            total_amount: totalAmount,
-            paid_amount: paidAmount,
-            remaining_balance: remainingBalance,
-          };
         });
     
         return res.status(200).json({
-          count: venturePaymentInfo.count,
-          rows: rowsWithPaymentInfo,
+         
+          rows: venturePaymentInfo,
         });
       } catch (error) {
         console.error(error);
