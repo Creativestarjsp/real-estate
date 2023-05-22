@@ -209,7 +209,12 @@ module.exports={
       const employees = await Employee.findAll({
         where: {
           role: 'agent'
-        },
+        },include:[
+          {
+            model:Designation,
+            attributes:['name']
+          }
+        ],
         attributes: ['emp_id', 'name'] // Add any additional attributes you want to retrieve
       });
   
