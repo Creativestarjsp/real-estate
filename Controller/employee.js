@@ -47,38 +47,32 @@ module.exports={
         res.status(500).json({ success: false, message: 'Server Error' });
       }
     },
-     getAllAgents : async (req, res) => {
+    getAllAgents: async (req, res) => {
       try {
+       
         const employees = await Employee.findAndCountAll({
           where: {
             role: 'agent'
           },
-          include: [
+          include:[
             {
-              model: Designation,
-              attributes: ['name']
-            },
-            {
-              model: Employee,
-              as: 'referralEmployees', // Alias for the referred employees association
-              attributes: ['emp_id', 'name', 'email'] // Adjust the attributes as needed
+              model:Designation,
+              attributes:['name']
             }
           ],
-          offset: (page - 1) * limit,
-          limit: limit,
+          
+       
           order: [['createdAt', 'DESC']]
         });
     
         return res.status(200).json({
           count: employees.count,
-          rows: employees.rows
+          rows: employees.rows,
         });
       } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
-      }
-    },
-    
+      }},
    
     
       getUplevelUsersByAgentId :async (req, res) => {
