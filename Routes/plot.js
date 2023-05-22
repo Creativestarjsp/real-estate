@@ -7,7 +7,7 @@ const router =express.Router()
 
 router.post("/all",GetAll);
 router.post("/add",Create)
-router.put("/:id",UpdateById)
+router.put("/",UpdateById)
 router.delete("/:plot_id",DeleteById)
 router.post("/:id",GetAll_by_VentureID)
 router.post("/:plot_id",getPlotUserEmployeeDetails)

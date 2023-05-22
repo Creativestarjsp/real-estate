@@ -41,6 +41,7 @@ Get_All: async (req, res) => {
 },
 
 Create: async (req, res) => {
+  const t = await sequelize.transaction({ isolationLevel: 'SERIALIZABLE' });
   try {
     if (req.user.userType !== "employee" && req.user.userType !== "admin") {
       return res.status(403).json({ message: 'Access Forbidden' });
