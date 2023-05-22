@@ -1,4 +1,4 @@
-const {Employee,Designation,User,PlotBooking,Plot} = require('../Models/models')
+const {Employee,Designation,User,PlotBooking,Plot,Venture} = require('../Models/models')
 const bcrypt = require('bcrypt');
 module.exports={
     ERegister: async (req, res) => {
@@ -242,7 +242,40 @@ module.exports={
       res.status(500).json({ success: false, message: "Server Error" });
     }
   },
+  getAgent_customers: async (req, res) => {
+    
+    
+      try {
+        const { agent_id } = req.params;
+    
+        // Find all plots booked by the agent
+        const bookedPlots = await PlotBooking.findAll({
+          where: {
+            agent_id: agent_id,
+          },
+          attributes: ['customer_id'],
+        });
+    
+        // Extract customer IDs from bookedPlots
+        const customerIds = bookedPlots.map((plot) => plot.customer_id);
+    
+        // Find customers with their booked plots
+        const customers = await User.findAll({
+          where: {
+            user_id: customerIds,
+          },        
+         
+            
+          
+        });
+    
+        res.status(200).json(customers);
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Unable to fetch customers with booked plots.' });
+      }
+    
+    
   
-
   
-}
+},}

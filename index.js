@@ -118,6 +118,13 @@ Payment.hasOne(User,{
   }
 
 })
+User.hasMany(Plot, {
+  foreignKey: 'customer_id',
+});
+
+Plot.belongsTo(User, {
+  foreignKey: 'customer_id',
+});
 
 PlotBooking.belongsTo(Plot, { foreignKey: 'plot_id' });
 PlotBooking.belongsTo(User, { foreignKey: 'customer_id' });
