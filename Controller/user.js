@@ -295,6 +295,67 @@ deletebyid: async (req, res) => {
       },
       
 
+      
+      changePasswordempbyAdmin: async (req, res, next) => {
+
+        const {newPassword } = req.body;
+               const {id}=req.params    
+       
+           try {
+          // Validate request body       
+         // Check if user or employee with given id exists
+         
+          const employee = await Employee.findOne({ where: { emp_id:id } });
+      
+          if (!employee) {
+            return res.status(404).json({ message: "User or employee not found" });
+          }
+      
+         
+          // Update the password
+          if (employee) {
+            await employee.update({ password: newPassword });
+          } else {
+            return res.status(200).json({ message: "Something Went Wrong" });
+          }
+      
+          return res.status(200).json({ message: "Password updated successfully" });
+        } catch (error) {
+          next(error);
+        }
+      },
+      
+      changePassworduserbyAdmin: async (req, res, next) => {
+
+        const {newPassword } = req.body;
+               const {id}=req.params    
+          
+           try {
+          // Validate request body       
+         // Check if user or employee with given id exists
+          const user = await User.findOne({ where: { user_id:id } });
+          
+      
+          if (!user) {
+            return res.status(404).json({ message: "User or employee not found" });
+          }
+      
+         
+          // Update the password
+          if (user) {
+            await user.update({ password: newPassword });
+          } else {
+            return res.status(200).json({ message: "Something Went Wrong" });
+          }
+      
+          return res.status(200).json({ message: "Password updated successfully" });
+        } catch (error) {
+          next(error);
+        }
+      },
+      
+
+
 
 
   //new login for admin,employee,user

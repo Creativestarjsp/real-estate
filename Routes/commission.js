@@ -1,5 +1,5 @@
 const express =require('express');
-const { getCommissionsForEmployeeAndPlot, getCommissionsForEmployee, getCommissionsOfplot, createPayCommission, getPayCommissionById, getPayCommissionByagent_id, getPayCommissions, updatePayCommissionById, Test, GetAgentPaidandremainingAmount } = require('../Controller/commission');
+const { getCommissionsForEmployeeAndPlot, getCommissionsForEmployee, getCommissionsOfplot, createPayCommission, getPayCommissionById, getPayCommissionByagent_id, getPayCommissions, updatePayCommissionById, GetAgentPaidandremainingAmount } = require('../Controller/commission');
 
 
 const router =express.Router()

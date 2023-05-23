@@ -1,4 +1,4 @@
-const {Employee,Designation,User,PlotBooking,Plot,Venture} = require('../Models/models')
+const {Employee,Designation,User,PlotBooking,Plot,Venture,Percentage} = require('../Models/models')
 const bcrypt = require('bcrypt');
 module.exports={
     ERegister: async (req, res) => {
@@ -85,7 +85,13 @@ module.exports={
             const uplineAgent = await Employee.findOne({ where: { emp_id:referralId }, include:[
               {
                 model:Designation,
-                attributes:['name']
+                attributes:['name'],
+                include: [
+                  {
+                    model: Percentage,
+                    attributes: ['percentage'],
+                  },
+                ],
               }
             ], });
             if (uplineAgent) {
@@ -283,4 +289,49 @@ module.exports={
     
   
   
-},}
+},
+getDownlevelUsersByAgentId: async (req, res) => {
+  try {
+    const { emp_id } = req.params;
+    let downlevelAgents = [];
+
+    const findDownlevelAgents = async (empId) => {
+      const downlineAgents = await Employee.findAll({
+        where: { referralId: empId },
+        include: [
+          {
+            model: Designation,
+            attributes: ['name'],
+            include: [
+              {
+                model: Percentage,
+                attributes: ['percentage'],
+              },
+            ],
+          },
+        ],
+      });
+
+      if (downlineAgents.length > 0) {
+        downlevelAgents.push(...downlineAgents);
+        for (const agent of downlineAgents) {
+          await findDownlevelAgents(agent.emp_id);
+        }
+      }
+    };
+
+    const agent = await Employee.findOne({ where: { emp_id } });
+    if (!agent) {
+      return res.status(404).json({ message: 'Agent not found' });
+    }
+
+    await findDownlevelAgents(agent.emp_id);
+
+    return res.status(200).json(downlevelAgents);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+},
+
+}

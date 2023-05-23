@@ -317,6 +317,32 @@ where:{
         return res.status(500).json({ message: "Internal server error" });
       }
     },
+    updatePlotStatus: async (req, res) => {
+      try {
+        const { status } = req.body;
+        const {plot_id}=req.params
+
+        console.log(status,plot_id)
+        // Find the plot by plot_id
+        const plot = await Plot.findByPk(plot_id);
+    
+        if (!plot) {
+          return res.status(404).json({ message: "Plot not found" });
+        }
+           console.log(plot)
+        // Update the status of the plot
+        await Plot.update(
+          { status: status },
+          { where: { plot_id: plot_id } }
+        );
+    
+        return res.status(200).json({ message: "Plot status updated successfully" });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    },
+    
     updateUserStatus: async (req, res) => {
       try {
         const { id } = req.query;
@@ -407,7 +433,7 @@ where:{
         return res.status(500).json({ message: "Internal server error" });
       }
     },
-    updatePlotStatus: async (req, res) => {
+    updateDesingStatus: async (req, res) => {
       try {
         const { id } = req.query;
         const {status}=req.body

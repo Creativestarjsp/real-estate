@@ -193,35 +193,33 @@ getAllVentures: async (req, res) => {
     //   }
     // },
 
-
     getVentureBookings: async (req, res) => {
       try {
         const { venture_id } = req.body;
         console.log(venture_id);
-        
     
         const venturePaymentInfo = await PlotBooking.findAll({
           attributes: ['booking_id', 'createdAt', 'status'],
-          
           include: [
             {
-              model: Plot,             
+              model: Plot,
               include: [
                 {
                   model: Phase,
                   attributes: ['name'],
-                },{
-                  model:Payment,
-                  attributes:["payment_id","amount"]
-                }
+                },
+                {
+                  model: Payment,
+                  attributes: ['payment_id', 'amount'],
+                },
               ],
               where: {
-                venture_id:venture_id, // Use shorthand syntax
+                venture_id,
               },
             },
             {
               model: User,
-              attributes: ['name', 'phone','user_id'],
+              attributes: ['name', 'phone', 'user_id'],
             },
             {
               model: Employee,
@@ -230,8 +228,16 @@ getAllVentures: async (req, res) => {
           ],
         });
     
+        // Calculate total payment amount for each plot
+        venturePaymentInfo.forEach((booking) => {
+          const totalPaymentAmount = booking.plot.Payments.reduce(
+            (sum, payment) => sum + payment.amount,
+            0
+          );
+          booking.plot.dataValues.totalPaymentAmount = totalPaymentAmount;
+        });
+    
         return res.status(200).json({
-         
           rows: venturePaymentInfo,
         });
       } catch (error) {
@@ -239,6 +245,7 @@ getAllVentures: async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
       }
     },
+    
     
 //not working
 getVenturePayments: async (req, res) => {
@@ -318,6 +325,52 @@ getVentureStats : async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch venture stats.' });
   }},
 
+getVentureDashboard : async (req, res) => {
+  try {
+    const venture_id = req.params.venture_id;
 
+    // Find the venture by venture ID
+    const venture = await Venture.findByPk(venture_id);
+
+    if (!venture) {
+      return res.status(404).json({ message: 'Venture not found' });
+    }
+
+    // Get total plots count for the venture
+    const totalPlots = await Plot.count({ where: { venture_id } });
+
+    // Get booking plots count for the venture
+    // const bookingPlots = await Plot.count({ where: { venture_id, status: 'sold' } });
+
+    // Get hold plots count for the venture
+    const holdPlots = await Plot.count({ where: { venture_id, status: 'hold' } });
+    const totalDueAmount = await Plot.sum('offer_price',{ where: { venture_id, status: 'hold' } });
+    // Get registered plots count for the venture
+    const registeredPlots = await Plot.count({ where: { venture_id, status: 'registered' } });
+
+    // Get total paid amount for the venture
+    const totalPaidAmount = await Payment.sum('amount',{ where: {venture_id} });
+
+    const  totalPaidPlots = await Plot.count({ where: { venture_id, status: 'sold' } });
+
+    // Get total due amount for the venture
+    const totalAvailablePlots = await Plot.count({ where: { venture_id, status: 'available' } });
+  
+
+    return res.status(200).json({
+      totalPlots,
+      totalAvailablePlots,
+    
+      holdPlots,
+      registeredPlots,
+      totalPaidPlots:totalPaidPlots ||0,
+      totalPaidAmount: totalPaidAmount || 0,
+      totalDueAmount: totalDueAmount-totalPaidAmount || 0
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+  },
  
 }

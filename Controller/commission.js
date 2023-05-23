@@ -1,4 +1,4 @@
-const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,PayCommission} = require('../Models/models')
+const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,PayCommission, Venture} = require('../Models/models')
 const { Op } = require("sequelize");
 const sequelize  = require("../Config/db");
 module.exports={
@@ -41,7 +41,7 @@ module.exports={
             return res.status(403).json({ message: 'Access Forbidden' })}
 
           const employeeId = req.params.employeeId;
-          const plot_id = req.params.plot_id;
+         
       
           const commissions = await Commission.findAll({
             where: {
@@ -51,7 +51,21 @@ module.exports={
                 model: Employee,
                 as: 'employee',
                 attributes: ['name'] 
+              },
+              {
+                model:Plot,
+                attributes:["plot_number"],
+                include:[{                  
+                    model:Venture,
+                    attributes:["name"]                  
+                },
+              {
+                model:User,
+                
               }]
+              },
+
+            ]
           });
       
           res.status(200).json({

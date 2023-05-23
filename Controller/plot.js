@@ -123,11 +123,17 @@ GetAll_by_VentureID: async (req, res) => {
       if(req.user.userType !== "employee" && req.user.userType !== "admin"){
         return res.status(403).json({ message: 'Access Forbidden' })}
 
-      const { id } = req.params;
+      const { plot_id } = req.params;
       const {venture_id,phase_id, plot_number, square_yards,sqr_yard_price,facing } = req.body;
      
+
+      const Plot_data = await Plot.findByPk(plot_id)
+      if (!Plot_data) {
+        return res.status(404).json({ message: 'Plot not found' });
+      }
       const updateObj = {};
       const venture = await Venture.findByPk(venture_id);
+    
     
       if (!venture) {
         return res.status(404).json({ message: 'Venture not found' });
@@ -161,7 +167,7 @@ GetAll_by_VentureID: async (req, res) => {
       }
     
       const plots = await Plot.update(updateObj, {
-        where: { plot_id: id },
+        where: { plot_id: plot_id },
       
       });
      

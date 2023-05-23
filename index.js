@@ -48,6 +48,10 @@ Designation.hasMany(Percentage, { foreignKey: 'desig_id' });
 
 Percentage.belongsTo(Venture, { foreignKey: 'venture_id' });
 Percentage.belongsTo(Designation, { foreignKey: 'desig_id' });
+
+Employee.hasMany(Percentage, { foreignKey: 'emp_id' });
+Percentage.belongsTo(Employee, { foreignKey: 'emp_id' });
+
 Phase.belongsTo(Venture, {
   foreignKey: {
     name: 'venture_id'
