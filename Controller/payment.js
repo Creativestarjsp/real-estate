@@ -182,11 +182,11 @@ exports.getPlotPaymentHistory = async (req, res) => {
 
 exports.Getcustomerand_plotpayment_history = async (req, res) => {
   try {
-    const { plot_id,customer_id } = req.body;
+    const { booking_id,customer_id } = req.body;
 
     const plotPaymentHistory = await Payment.findAll({
       where: {
-        plot_id: plot_id,
+        booking_id: booking_id,
         customer_id:customer_id
 
       },
