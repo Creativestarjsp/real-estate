@@ -40,19 +40,169 @@ Get_All: async (req, res) => {
   }
 },
 
-Create: async (req, res) => {
+// Create: async (req, res) => {
+//   const t = await sequelize.transaction({ isolationLevel: 'SERIALIZABLE' });
+//   try {
+//     if (req.user.userType !== "employee" && req.user.userType !== "admin") {
+//       return res.status(403).json({ message: 'Access Forbidden' });
+//     }
+
+//     const t = await sequelize.transaction({ isolationLevel: 'SERIALIZABLE' });
+//     const { plot_id, customer_id, agent_id, amount, payment_method, offer_sqr_yard_price } = req.body;
+//     const updateObj = {};
+
+//     // Check if the plot is available for booking
+//     const plot = await Plot.findByPk(plot_id);
+//     if (!plot) {
+//       await t.rollback();
+//       return res.status(400).json({ success: false, message: "Plot not found" });
+//     }
+
+//     if (!plot.offer_sqr_yard_price) {
+//       if (offer_sqr_yard_price) {
+//         updateObj.offer_sqr_yard_price = offer_sqr_yard_price;
+//         updateObj.offer_price = offer_sqr_yard_price * plot.square_yards;
+
+//         const [rowsUpdated] = await Plot.update(updateObj, {
+//           where: { plot_id: plot_id },
+//           transaction: t
+//         });
+
+//         if (rowsUpdated === 0) {
+//           await t.rollback();
+//           return res.status(400).json({ success: false, message: "Something Went Wrong..." });
+//         }
+//       } else {
+//         return res.status(400).json({ success: false, message: "Final Price not Defined" });
+//       }
+//     }
+
+//     if (plot.status !== "available") {
+//       await t.rollback();
+//       return res.status(400).json({ success: false, message: "The selected plot is already booked" });
+//     }
+
+//     const venture = await Venture.findByPk(plot.venture_id);
+
+//     if (venture.status !== "active") {
+//       return res.status(400).json({ success: false, message: "Venture is inactive" });
+//     }
+
+//     // Check phase status
+//     const phase = await Phase.findByPk(plot.phase_id);
+//     if (phase.status !== "active") {
+//       await t.rollback();
+//       return res.status(400).json({ success: false, message: "Phase is inactive" });
+//     }
+
+//     const agent = await Employee.findByPk(agent_id);
+//     if (!agent) {
+//       await t.rollback();
+//       return res.status(400).json({ success: false, message: "Agent not found" });
+//     }
+
+//     if (!agent.desig_id) {
+//       await t.rollback();
+//       return res.status(400).json({ success: false, message: "Designation not found for the agent" });
+//     }
+
+//     const agentDesignation = await Designation.findByPk(agent.desig_id);
+//     if (!agentDesignation) {
+//       await t.rollback();
+//       return res.status(400).json({ success: false, message: "Designation not found for the agent" });
+//     }
+
+//     const agentPercentage = await Percentage.findOne({
+//       where: { desig_id: agent.desig_id, venture_id: venture.venture_id },
+//     });
+
+//     if (!agentPercentage) {
+//       await t.rollback();
+//       return res.status(400).json({ success: false, message: "Commission percentage not found for the agent's designation and venture" });
+//     }
+
+//     const agentCommissionPercentage = agentPercentage.percentage;
+//     const agentCommissionAmount = (amount * agentCommissionPercentage) / 100;
+
+//     const booking = await PlotBooking.create(
+//       { plot_id, customer_id, agent_id },
+//       { transaction: t }
+//     );
+
+//     const agentCommission = await Commission.create(
+//       { amount: agentCommissionAmount, employeeId: agent_id, plotBookingId: booking.booking_id, plot_id },
+//       { transaction: t }
+//     );
+//   // create the payment
+//   const payment = await Payment.create(
+//     { amount,booking_id:booking.booking_id, payment_method,customer_id,plot_id:booking.plot_id,venture_id:venture.venture_id},
+//     { transaction: t }
+//   );
+//     await Plot.update(
+//       { status: "hold", customer_id, agent_id },
+//       { where: { plot_id }, transaction: t }
+//     );
+
+//     let referral = agent.referralId;
+//     let prevAgentCommission=agentCommissionPercentage
+    
+//     while (referral) {
+//       const referralEmployee = await Employee.findByPk(referral);
+//       if (!referralEmployee) {
+//         break;
+//       }
+
+//       const referralDesignation = await Designation.findByPk(referralEmployee.desig_id);
+//       if (!referralDesignation) {
+//         await t.rollback();
+//         return res.status(400).json({ success: false, message: "Designation not found for the referral employee" });
+//       }
+// // console.log(referralEmployee.desig_id,"iiiiiiiiiiiiiiiiiiiii")
+//       const referralPercentage = await Percentage.findOne({
+//         where: { desig_id: referralEmployee.desig_id, venture_id: venture.venture_id },
+//       });
+      
+//         // console.log(referralPercentage,"odknn")
+
+//       if (!referralPercentage) {
+//         await t.rollback();
+//         return res.status(400).json({ success: false, message: "Commission percentage not found for the referral employee's designation and venture" });
+//       }
+
+//       const referralCommissionPercentage = referralPercentage.percentage;
+//       const referralCommissionAmount = referralCommissionPercentage-prevAgentCommission
+//       const ramount =(amount * referralCommissionAmount) / 100;
+//       prevAgentCommission=referralCommissionPercentage
+
+//       const referralCommission = await Commission.create(
+//         { amount: ramount, employeeId: referral, plotBookingId: booking.booking_id,plot_id },
+//         { transaction: t }
+//       );
+
+//       referral = referralEmployee.referralId;
+//     }
+
+//     await t.commit();
+
+//     res.status(201).json({ success: true, data: booking });
+//   } catch (err) {
+//     console.error(err);
+//     await t.rollback();
+//     res.status(500).json({ success: false, message: "Server Error" });
+//   }
+// },
+Create :async (req, res) => {
   const t = await sequelize.transaction({ isolationLevel: 'SERIALIZABLE' });
+
   try {
+    const { plot_id, customer_id, agent_id, amount, payment_method, offer_sqr_yard_price } = req.body;
+    const updateObj = {};
+
     if (req.user.userType !== "employee" && req.user.userType !== "admin") {
       return res.status(403).json({ message: 'Access Forbidden' });
     }
 
-    const t = await sequelize.transaction({ isolationLevel: 'SERIALIZABLE' });
-    const { plot_id, customer_id, agent_id, amount, payment_method, offer_sqr_yard_price } = req.body;
-    const updateObj = {};
-
-    // Check if the plot is available for booking
-    const plot = await Plot.findByPk(plot_id);
+    const plot = await Plot.findByPk(plot_id, { transaction: t });
     if (!plot) {
       await t.rollback();
       return res.status(400).json({ success: false, message: "Plot not found" });
@@ -70,10 +220,10 @@ Create: async (req, res) => {
 
         if (rowsUpdated === 0) {
           await t.rollback();
-          return res.status(400).json({ success: false, message: "Something Went Wrong..." });
+          return res.status(400).json({ success: false, message: "Something went wrong..." });
         }
       } else {
-        return res.status(400).json({ success: false, message: "Final Price not Defined" });
+        return res.status(400).json({ success: false, message: "Final price not defined" });
       }
     }
 
@@ -82,31 +232,25 @@ Create: async (req, res) => {
       return res.status(400).json({ success: false, message: "The selected plot is already booked" });
     }
 
-    const venture = await Venture.findByPk(plot.venture_id);
-
+    const venture = await Venture.findByPk(plot.venture_id, { transaction: t });
     if (venture.status !== "active") {
+      await t.rollback();
       return res.status(400).json({ success: false, message: "Venture is inactive" });
     }
 
-    // Check phase status
-    const phase = await Phase.findByPk(plot.phase_id);
+    const phase = await Phase.findByPk(plot.phase_id, { transaction: t });
     if (phase.status !== "active") {
       await t.rollback();
       return res.status(400).json({ success: false, message: "Phase is inactive" });
     }
 
-    const agent = await Employee.findByPk(agent_id);
-    if (!agent) {
+    const agent = await Employee.findByPk(agent_id, { transaction: t });
+    if (!agent || !agent.desig_id) {
       await t.rollback();
-      return res.status(400).json({ success: false, message: "Agent not found" });
+      return res.status(400).json({ success: false, message: "Agent not found or designation not found for the agent" });
     }
 
-    if (!agent.desig_id) {
-      await t.rollback();
-      return res.status(400).json({ success: false, message: "Designation not found for the agent" });
-    }
-
-    const agentDesignation = await Designation.findByPk(agent.desig_id);
+    const agentDesignation = await Designation.findByPk(agent.desig_id, { transaction: t });
     if (!agentDesignation) {
       await t.rollback();
       return res.status(400).json({ success: false, message: "Designation not found for the agent" });
@@ -114,6 +258,7 @@ Create: async (req, res) => {
 
     const agentPercentage = await Percentage.findOne({
       where: { desig_id: agent.desig_id, venture_id: venture.venture_id },
+      transaction: t
     });
 
     if (!agentPercentage) {
@@ -133,26 +278,27 @@ Create: async (req, res) => {
       { amount: agentCommissionAmount, employeeId: agent_id, plotBookingId: booking.booking_id, plot_id },
       { transaction: t }
     );
-  // create the payment
-  const payment = await Payment.create(
-    { amount,booking_id:booking.booking_id, payment_method,customer_id,plot_id:booking.plot_id,venture_id:venture.venture_id},
-    { transaction: t }
-  );
+
+    const payment = await Payment.create(
+      { amount, booking_id: booking.booking_id, payment_method, customer_id, plot_id: booking.plot_id, venture_id: venture.venture_id },
+      { transaction: t }
+    );
+
     await Plot.update(
       { status: "hold", customer_id, agent_id },
       { where: { plot_id }, transaction: t }
     );
 
     let referral = agent.referralId;
-    let prevAgentCommission=agentCommissionPercentage
-    
+    let prevAgentCommission = agentCommissionPercentage;
+
     while (referral) {
-      const referralEmployee = await Employee.findByPk(referral);
+      const referralEmployee = await Employee.findByPk(referral, { transaction: t });
       if (!referralEmployee) {
         break;
       }
 
-      const referralDesignation = await Designation.findByPk(referralEmployee.desig_id);
+      const referralDesignation = await Designation.findByPk(referralEmployee.desig_id, { transaction: t });
       if (!referralDesignation) {
         await t.rollback();
         return res.status(400).json({ success: false, message: "Designation not found for the referral employee" });
@@ -160,6 +306,7 @@ Create: async (req, res) => {
 
       const referralPercentage = await Percentage.findOne({
         where: { desig_id: referralEmployee.desig_id, venture_id: venture.venture_id },
+        transaction: t
       });
 
       if (!referralPercentage) {
@@ -168,12 +315,12 @@ Create: async (req, res) => {
       }
 
       const referralCommissionPercentage = referralPercentage.percentage;
-      const referralCommissionAmount = referralCommissionPercentage-prevAgentCommission
-      const ramount =(amount * referralCommissionAmount) / 100;
-      prevAgentCommission=referralCommissionPercentage
+      const referralCommissionAmount = referralCommissionPercentage - prevAgentCommission;
+      const ramount = (amount * referralCommissionAmount) / 100;
+      prevAgentCommission = referralCommissionPercentage;
 
       const referralCommission = await Commission.create(
-        { amount: ramount, employeeId: referral, plotBookingId: booking.booking_id,plot_id },
+        { amount: ramount, employeeId: referral, plotBookingId: booking.booking_id, plot_id },
         { transaction: t }
       );
 
@@ -186,7 +333,7 @@ Create: async (req, res) => {
   } catch (err) {
     console.error(err);
     await t.rollback();
-    res.status(500).json({ success: false, message: "Server Error" });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 },
 
