@@ -384,7 +384,7 @@ Create :async (req, res) => {
       return res.status(403).json({ message: 'Access Forbidden' });
     }
 
-    const { booking_id, amount, payment_method, customer_id } = req.body;
+    const { booking_id, amount, payment_method, customer_id,remarks } = req.body;
 
     // check if booking exists
     const booking = await PlotBooking.findByPk(booking_id, {
@@ -437,7 +437,7 @@ Create :async (req, res) => {
 
     // create the payment
     const payment = await Payment.create(
-      { amount, booking_id, payment_method, customer_id, plot_id: booking.plot_id, venture_id: venture.venture_id },
+      { amount, booking_id, payment_method, customer_id, plot_id: booking.plot_id, venture_id: venture.venture_id,remarks },
       { transaction: t }
     );
 

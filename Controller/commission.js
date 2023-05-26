@@ -138,6 +138,8 @@ module.exports={
               message: `Employee with id ${agent_id} is not an agent`
             });
           }
+
+          
     
           const payCommission = await PayCommission.create({
             pay_commission,
@@ -268,9 +270,7 @@ const payCommissions = await PayCommission.findAll({
       const pageSize = 10; // Number of items to return per page
       const page = req.body.page ? parseInt(req.body.page) : 1; // Page number  
       // Calculate the offset and limit for pagination
-      const offset = (page - 1) * pageSize;
-      const limit = pageSize;
-  
+     
       // Start date
       if(!req.body.startDate){
         return res.status(404).json({
@@ -293,19 +293,16 @@ const payCommissions = await PayCommission.findAll({
        
         where: sequelize.literal(`DATE(PayCommission.createdAt) BETWEEN '${startDate}' AND '${endDate}'`),
         
-        limit: limit,
-        offset: offset,
+      
         
         order: [['createdAt', 'DESC']] // Order by created date in descending order
       });
   
-      const totalPages = Math.ceil(payCommissions.count / pageSize);
-  
+      
       res.status(200).json({
         success: true,
         data: payCommissions.rows,
-        currentPage: page,
-        totalPages: totalPages
+       
       });
     } catch (error) {
       console.log(error);
@@ -460,6 +457,7 @@ const payCommissions = await PayCommission.findAll({
         where: {
           employeeId:agent_id,
           plot_id: plot.plot_id,
+          status:"pending"
           
         }
       });
