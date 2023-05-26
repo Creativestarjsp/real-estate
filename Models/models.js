@@ -503,7 +503,7 @@ const PayCommission = sequelize.define('PayCommission', {
     allowNull: false
   },
   payment_type: {
-    type: DataTypes.ENUM('pending', 'paid', 'remark'),
+    type:DataTypes.STRING,
     allowNull: false,
     defaultValue: 'pending',
   },

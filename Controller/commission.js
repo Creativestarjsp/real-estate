@@ -432,7 +432,56 @@ const payCommissions = await PayCommission.findAll({
       console.error(error);
       return res.status(500).json({ message: 'Server error' });
     }
-  }
+  },
+ getTotalPaid : async (req, res) => {
+    try {
+      const { agent_id, plot_id } = req.params;
+  
+      const agent = await Employee.findByPk(agent_id);
+      if (!agent) {
+        return res.status(404).json({ message: 'Agent not found' });
+      }
+  
+      const plot = await Plot.findOne({ where: { plot_id } });
+      if (!plot) {
+        return res.status(404).json({ message: 'Plot not found' });
+      }
+  
+      const userData = await User.findOne({ where: { user_id: plot.customer_id } });
+  
+      const totalPaid = await PayCommission.sum('pay_commission', {
+        where: {
+          agent_id,
+          plot_id: plot.plot_id
+        }
+      });
+  
+      const totalDue = await Commission.sum('amount', {
+        where: {
+          employeeId:agent_id,
+          plot_id: plot.plot_id,
+          
+        }
+      });
+  
+      res.status(200).json({
+        agent: {
+          id: userData.user_id,
+          name: userData.name,
+          email: userData.email
+        },
+        plot: {
+          plot_id: plot.plot_id,
+          plot_number: plot.plot_number
+        },
+        total_paid: totalPaid || 0,
+        total_due: totalDue || 0
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
 
 
     
