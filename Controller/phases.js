@@ -136,7 +136,49 @@ getPhasePlots : async (req, res) => {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
-}
+},
+update: async (req, res) => {
+  try {
+    if (req.user.userType !== "employee" && req.user.userType !== "admin") {
+      return res.status(403).json({ message: 'Access Forbidden' });
+    }
+
+    const { name, venture_id } = req.body;
+    const { phase_id } = req.params;
+
+    // Validate inputs
+    if (!name) {
+      return res.status(400).send({ message: "Name is required." });
+    }
+
+    if (!venture_id) {
+      return res.status(400).send({ message: "Venture ID is required." });
+    }
+
+    // Check if phase exists
+    const phase = await Phase.findByPk(phase_id);
+    if (!phase) {
+      return res.status(404).json({ message: 'Phase not found' });
+    }
+
+    // Check if venture exists
+    const venture = await Venture.findByPk(venture_id);
+    if (!venture) {
+      return res.status(404).json({ message: 'Venture not found' });
+    }
+
+    phase.name = name;
+    phase.venture_id = venture_id;
+    await phase.save();
+
+    return res.status(200).send(phase);
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: "Could not update phase." });
+  }
+},
+
 
 
 

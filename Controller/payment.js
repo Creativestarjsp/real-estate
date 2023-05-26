@@ -131,9 +131,9 @@ exports.getAllUserPayments = async (req, res, next) => {
   try {
     if(req.user.userType !== "employee" && req.user.userType !== "admin"){
       return res.status(403).json({ message: 'Access Forbidden' })}
-    const page = req.body.page || 1;
-    const limit = req.body.limit || 10;
-    const offset = (page - 1) * limit;
+   
+
+    
     const userId = req.params.userId;
     // console.log(userId)
     const user = await User.findByPk(userId);
@@ -144,11 +144,16 @@ exports.getAllUserPayments = async (req, res, next) => {
       include: [{
       model: Plot,
       as: 'plot',
-      attributes: ['plot_number'] 
+      attributes: ['plot_number','facing','square_yards'],
+      include: [
+        { 
+          model: Venture, 
+          attributes: ['name']
+        }
+      ]
     }],
       
-      limit,
-      offset });
+   });
     return res.status(200).json(payments); 
   } catch (error) {
     next(error);

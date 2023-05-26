@@ -119,7 +119,7 @@ module.exports={
         try {
           if(req.user.userType !== "employee" && req.user.userType !== "admin"){
             return res.status(403).json({ message: 'Access Forbidden' })}
-          const { pay_commission, payment_type, remarks, plot_id, agent_id } = req.body;
+          const { pay_commission, payment_type, remarks, plot_id, agent_id,commi_id } = req.body;
           console.log(pay_commission)
           // check if plot_id exists in the Plot table
           const plot = await Plot.findByPk(plot_id);
@@ -138,8 +138,11 @@ module.exports={
               message: `Employee with id ${agent_id} is not an agent`
             });
           }
+        const commissionID=await Commission.findByPk(commi_id)
 
-          
+          if(commissionID.amount<pay_commission){
+            return res.status(400).json({message:"Commission Amount is lesser than Pay Commission"})
+          }
     
           const payCommission = await PayCommission.create({
             pay_commission,
@@ -238,17 +241,29 @@ const payCommissions = await PayCommission.findAll({
     where: {
       agent_id:agent_id
     },
+    include: [
+      { 
+        model: Plot, 
+        attributes: ['plot_id', 'plot_number'], 
         include: [
-         
-          { model: Employee, attributes: ['name']  }
+          { 
+            model: Venture, 
+            attributes: ['name']
+          }
         ]
+      },
+      { 
+        model: Employee, 
+        attributes: ['name']
+      }
+    ]
       });
       if (!payCommissions) {
         return res.status(404).json({
           success: false,
           message: 'Commission not found'
         });
-      }
+      } 
 
       res.status(200).json({
         success: true,
