@@ -80,27 +80,72 @@ module.exports={
           });
         }
       },
+      // getCommissionsOfplot: async (req, res) => {
+      //   try {
+      //     if(req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.userType !== "agent"){
+      //       return res.status(403).json({ message: 'Access Forbidden' })}
+      //   //   const employeeId = req.params.employeeId;
+      //     const {plot_id }= req.body
+      //       if(!plot_id){
+      //           res.status(500).json({
+      //               success: false,
+      //               message: 'Send Valid data'
+      //             });
+      //       }
+      //     const commissions = await Commission.findAll({
+      //       where: {
+      //           plot_id:plot_id
+              
+      //       },include: [{
+      //           model: Employee,
+      //           as: 'employee',
+      //           attributes: ['name'] 
+      //         }]
+      //     });
+      
+      //     res.status(200).json({
+      //       success: true,
+      //       data: commissions
+      //     });
+      //   } catch (error) {
+      //     console.log(error);
+      //     res.status(500).json({
+      //       success: false,
+      //       message: 'Server error'
+      //     });
+      //   }
+      // },
+
       getCommissionsOfplot: async (req, res) => {
         try {
-          if(req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.userType !== "agent"){
-            return res.status(403).json({ message: 'Access Forbidden' })}
-        //   const employeeId = req.params.employeeId;
-          const {plot_id }= req.body
-            if(!plot_id){
-                res.status(500).json({
-                    success: false,
-                    message: 'Send Valid data'
-                  });
-            }
+          if (req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.userType !== "agent") {
+            return res.status(403).json({ message: 'Access Forbidden' });
+          }
+      
+          const { plot_id } = req.body;
+      
+          if (!plot_id) {
+            res.status(500).json({
+              success: false,
+              message: 'Send valid data'
+            });
+          }
+      
           const commissions = await Commission.findAll({
             where: {
-                plot_id:plot_id
-              
-            },include: [{
-                model: Employee,
-                as: 'employee',
-                attributes: ['name'] 
-              }]
+              plot_id: plot_id
+            },
+            include: [{
+              model: Employee,
+              as: 'employee',
+              attributes: ['name'],
+            }],
+            attributes: [
+              'employeeId',
+              'plot_id',
+              [sequelize.fn('sum', sequelize.col('amount')), 'totalCommission']
+            ],
+            group: ['employeeId'],
           });
       
           res.status(200).json({
@@ -115,6 +160,7 @@ module.exports={
           });
         }
       },
+      
       createPayCommission: async (req, res) => {
         try {
           if(req.user.userType !== "employee" && req.user.userType !== "admin"){
@@ -410,7 +456,7 @@ const payCommissions = await PayCommission.findAll({
   
 
   //Agent Paid and remaining balance
-  GetAgentPaidandremainingAmount: async (req, res) => {
+  GetAgentPaidandremainingAmount: async (req, res) => { 
     try {
       if(req.user.userType !== "employee" && req.user.userType !== "admin" && req.user.userType !== "agent"){
         return res.status(403).json({ message: 'Access Forbidden' })}
@@ -445,6 +491,7 @@ const payCommissions = await PayCommission.findAll({
       return res.status(500).json({ message: 'Server error' });
     }
   },
+
  getTotalPaid : async (req, res) => {
     try {
       const { agent_id, plot_id } = req.params;

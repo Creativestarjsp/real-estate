@@ -1,5 +1,5 @@
 const express =require('express');
-const { GetAll, Create, UpdateById, DeleteById, GetAll_by_VentureID, getPlotUserEmployeeDetails, Post_Offer_price, getPlotDetails } = require('../Controller/plot');
+const { GetAll, Create, UpdateById, DeleteById, GetAll_by_VentureID, getPlotUserEmployeeDetails, Post_Offer_price, getPlotDetails, createPlots } = require('../Controller/plot');
 const { updatePlotStatus } = require('../Controller/dashboard');
 
 
@@ -15,6 +15,7 @@ router.post("/:plot_id",getPlotUserEmployeeDetails)
 router.post("/offer/:plot_id",Post_Offer_price)
 router.get('/plots/:plotId',getPlotDetails);
 router.post('/update/status/:plot_id',updatePlotStatus)
+router.post('/bulk/plots',createPlots);
 // router.post("/register",Create)
 // router.get("/",)
 

@@ -133,7 +133,7 @@ GetAll_by_VentureID: async (req, res) => {
       }
       const updateObj = {};
       const venture = await Venture.findByPk(venture_id);
-    
+     
     
       if (!venture) {
         return res.status(404).json({ message: 'Venture not found' });
@@ -273,7 +273,35 @@ GetAll_by_VentureID: async (req, res) => {
       console.error('Error fetching plot details:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
+  },createPlots: async (req, res) => {
+    let transaction; // Define the transaction variable
+  
+    try {
+      const { plots } = req.body; // Assuming the array of plots is in the req.body as "plots"
+      console.log(plots, "me");
+  
+      transaction = await sequelize.transaction(); // Assign the transaction value
+  
+      // Insert the plots into the table within the transaction
+      await Plot.bulkCreate(plots, { transaction });
+  
+      console.log('Plots inserted successfully.');
+  
+      // Commit the transaction
+      await transaction.commit();
+  
+      res.status(201).json({ success: true, message: 'Plots created successfully.' });
+    } catch (error) {
+      console.error('Error inserting plots:', error);
+  
+      if (transaction) {
+        await transaction.rollback(); // Rollback the transaction on error
+      }
+  
+      res.status(500).json({ success: false, message:error });
+    }
   },
+  
 
 };
 

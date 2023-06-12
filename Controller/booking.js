@@ -212,6 +212,7 @@ Create :async (req, res) => {
       if (offer_sqr_yard_price) {
         updateObj.offer_sqr_yard_price = offer_sqr_yard_price;
         updateObj.offer_price = offer_sqr_yard_price * plot.square_yards;
+      
 
         const [rowsUpdated] = await Plot.update(updateObj, {
           where: { plot_id: plot_id },
@@ -255,7 +256,26 @@ Create :async (req, res) => {
       await t.rollback();
       return res.status(400).json({ success: false, message: "Designation not found for the agent" });
     }
+    const cutoff = await Percentage.findOne({
+      where: { desig_id:2, venture_id: venture.venture_id },
+      transaction: t
+    });
+    if (!cutoff) {
+      await t.rollback();
+      return res.status(400).json({ success: false, message: "Commission percentage not found for the agent's designation and venture" });
+    }
+    updateObj.cut_of_price=cutoff.percentage*plot.square_yards
+    updateObj.company_price =updateObj.offer_price-updateObj.cut_of_price
+   
+    const [rowsUpdated] = await Plot.update(updateObj, {
+      where: { plot_id: plot_id },
+      transaction: t
+    });
 
+    if (rowsUpdated === 0) {
+      await t.rollback();
+      return res.status(400).json({ success: false, message: "Something went wrong..." });
+    }
     const agentPercentage = await Percentage.findOne({
       where: { desig_id: agent.desig_id, venture_id: venture.venture_id },
       transaction: t
@@ -267,7 +287,7 @@ Create :async (req, res) => {
     }
 
     const agentCommissionPercentage = agentPercentage.percentage;
-    const agentCommissionAmount = (amount * agentCommissionPercentage) / 100;
+    const agentCommissionAmount = ((plot.square_yards*agentCommissionPercentage) / updateObj.offer_price) * amount
 
     const booking = await PlotBooking.create(
       { plot_id, customer_id, agent_id },
@@ -316,7 +336,7 @@ Create :async (req, res) => {
 
       const referralCommissionPercentage = referralPercentage.percentage;
       const referralCommissionAmount = referralCommissionPercentage - prevAgentCommission;
-      const ramount = (amount * referralCommissionAmount) / 100;
+      const ramount =  ((plot.square_yards *referralCommissionAmount) / updateObj.offer_price) * amount
       prevAgentCommission = referralCommissionPercentage;
 
       const referralCommission = await Commission.create(
@@ -437,7 +457,7 @@ Create :async (req, res) => {
 
     // create the payment
     const payment = await Payment.create(
-      { amount, booking_id, payment_method, customer_id, plot_id: booking.plot_id, venture_id: venture.venture_id,remarks },
+      { amount, booking_id, payment_method,customer_id, plot_id: booking.plot_id, venture_id: venture.venture_id,remarks },
       { transaction: t }
     );
 
@@ -455,7 +475,7 @@ Create :async (req, res) => {
     const agentCommissionPercentage = designation.percentage;
 
     // calculate the commission amount
-    const commissionAmount = (amount * agentCommissionPercentage) / 100;
+    const commissionAmount = ((plot.square_yards*agentCommissionPercentage) / plot.offer_price) * amount
 
     // create the commission
     const commission = await Commission.create(
@@ -489,7 +509,7 @@ Create :async (req, res) => {
       const referralCommissionAmount = referralCommissionPercentage - prevAgentCommission;
 
       // calculate the commission amount
-      const commissionAmount = (amount * referralCommissionAmount) / 100;
+      const commissionAmount = ((plot.square_yards*referralCommissionAmount) / plot.offer_price) * amount
 
       const commissionEmployeeId = referralId;
       prevAgentCommission = referralCommissionPercentage;

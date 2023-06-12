@@ -292,6 +292,15 @@ const Plot = sequelize.define('plot', {
     type: DataTypes.FLOAT,
     allowNull: false
   },
+  company_price: {
+    type: DataTypes.FLOAT,
+    allowNull: false
+  },
+  cut_of_price: {
+    type: DataTypes.FLOAT,
+    allowNull: false
+  },
+
 
   venture_id: {
     type: DataTypes.BIGINT,
@@ -369,6 +378,9 @@ const PlotBooking = sequelize.define('plotbooking', {
       key:"emp_id"
     }
    
+  },remarks: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   status: {
     type: DataTypes.ENUM("paid","cancelled"),
