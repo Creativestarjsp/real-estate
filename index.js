@@ -44,10 +44,20 @@ Venture.hasMany(Plot, {
 
 Venture.hasMany(Designation, { foreignKey: 'venture_id' });
 Venture.hasMany(Percentage, { foreignKey: 'venture_id' });
-Designation.hasMany(Percentage, { foreignKey: 'desig_id' });
+
 
 Percentage.belongsTo(Venture, { foreignKey: 'venture_id' });
-Percentage.belongsTo(Designation, { foreignKey: 'desig_id' });
+
+
+Percentage.belongsTo(Designation, {
+  foreignKey: 'desig_id',
+  as: 'designation',
+});
+
+Designation.hasMany(Percentage, {
+  foreignKey: 'desig_id',
+  as: 'percentages',
+});
 
 Employee.hasMany(Percentage, { foreignKey: 'emp_id' });
 Percentage.belongsTo(Employee, { foreignKey: 'emp_id' });

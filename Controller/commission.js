@@ -1,5 +1,5 @@
-const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,PayCommission, Venture} = require('../Models/models')
-const { Op } = require("sequelize");
+const {Employee,User,Designation,PlotBooking,Plot,Commission,Payment,PayCommission, Venture, Percentage} = require('../Models/models')
+const { Op,literal  } = require("sequelize");
 const sequelize  = require("../Config/db");
 module.exports={
 
@@ -123,29 +123,51 @@ module.exports={
           }
       
           const { plot_id } = req.body;
-      
+          console.log(plot_id)
           if (!plot_id) {
-            res.status(500).json({
+           return res.status(500).json({
               success: false,
               message: 'Send valid data'
             });
           }
       
           const commissions = await Commission.findAll({
-            where: {
-              plot_id: plot_id
-            },
-            include: [{
-              model: Employee,
-              as: 'employee',
-              attributes: ['name'],
-            }],
+            where:{
+              plot_id:plot_id
+            }, include: [
+              {
+                model: Employee,
+                as: 'employee',
+                attributes: ['name'],
+                include: [
+                  {
+                    model: Designation,
+                    as: 'designation',
+                    attributes: ['name'],
+                    include: [
+                      {
+                        model: Percentage,
+                        as: 'percentages',
+                        attributes: ['percentage'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
             attributes: [
               'employeeId',
               'plot_id',
-              [sequelize.fn('sum', sequelize.col('amount')), 'totalCommission']
+              [
+                literal(`ROUND(SUM(amount), 2)`),
+                'totalCommission',
+              ],
             ],
-            group: ['employeeId'],
+            group: [
+              'employee.emp_id',
+              'employee.designation.desig_id',
+              'employee.designation.percentages.per_id',
+            ],
           });
       
           res.status(200).json({
